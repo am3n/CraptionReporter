@@ -3,7 +3,7 @@
 
 CraptionReporter is a crash, exception and log reporter tool for android
 
-Server side coming soon
+Server side coming soon..
 
 
 
