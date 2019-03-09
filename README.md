@@ -19,4 +19,4 @@ dependencies {
 
 ## Credits
 
-This library was inspired in this repo: https://github.com/MindorksOpenSource/CrashReporter
+https://github.com/MindorksOpenSource/CrashReporter
