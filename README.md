@@ -10,8 +10,10 @@ Server side coming soon..
 ## Download
 
 ```gradle
-repositories {
-  maven { url 'https://jitpack.io' }
+allprojects {
+  repositories {
+    maven { url 'https://jitpack.io' }
+  }
 }
 
 dependencies {
