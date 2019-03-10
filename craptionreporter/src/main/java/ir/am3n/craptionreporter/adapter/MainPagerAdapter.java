@@ -4,15 +4,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import ir.am3n.craptionreporter.ui.ExceptionLogFragment;
-import ir.am3n.craptionreporter.ui.CrashLogFragment;
+import ir.am3n.craptionreporter.ui.ExceptionesFragment;
+import ir.am3n.craptionreporter.ui.CrashesFragment;
 import ir.am3n.craptionreporter.ui.LogFragment;
 
 public class MainPagerAdapter extends FragmentPagerAdapter {
 
     private LogFragment logFragment;
-    private CrashLogFragment crashLogFragment;
-    private ExceptionLogFragment exceptionLogFragment;
+    private CrashesFragment crashesFragment;
+    private ExceptionesFragment exceptionesFragment;
     private String[] titles;
 
     public MainPagerAdapter(FragmentManager fm, String[] titles) {
@@ -23,13 +23,13 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position == 0) {
-            return crashLogFragment = new CrashLogFragment();
+            return crashesFragment = new CrashesFragment();
         } else if (position == 1) {
-            return exceptionLogFragment = new ExceptionLogFragment();
+            return exceptionesFragment = new ExceptionesFragment();
         } else if (position == 2) {
             return logFragment = new LogFragment();
         } else {
-            return new CrashLogFragment();
+            return new CrashesFragment();
         }
     }
 
@@ -45,7 +45,7 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
 
     public void clearLogs() {
         logFragment.clearLog();
-        crashLogFragment.clearLog();
-        exceptionLogFragment.clearLog();
+        crashesFragment.clearLog();
+        exceptionesFragment.clearLog();
     }
 }

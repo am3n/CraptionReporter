@@ -11,22 +11,21 @@ import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import androidx.annotation.NonNull;
-import android.util.Log;
 
 /**
  * Created by amitshekhar on 16/11/16.
  */
 
-public class CrashReporterInitProvider extends ContentProvider {
+public class CraptionReporterInitProvider extends ContentProvider {
 
 
-    public CrashReporterInitProvider() {
+    public CraptionReporterInitProvider() {
     }
 
     @Override
     public boolean onCreate() {
-        //Log.d("Meeeeeee", "CrashReporterInitProvider() > onCreate() > build...");
-        CrashReporter.with(getContext()).build();
+        //Log.d("Meeeeeee", "CraptionReporterInitProvider() > onCreate() > build...");
+        CraptionReporter.with(getContext()).build();
         return true;
     }
 
@@ -58,10 +57,10 @@ public class CrashReporterInitProvider extends ContentProvider {
     @Override
     public void attachInfo(Context context, ProviderInfo providerInfo) {
         if (providerInfo == null) {
-            throw new NullPointerException("CrashReporterInitProvider ProviderInfo cannot be null.");
+            throw new NullPointerException("CraptionReporterInitProvider ProviderInfo cannot be null.");
         }
         // So if the authorities equal the library internal ones, the developer forgot to set his applicationId
-        if ("com.crashreporter.CrashReporterInitProvider".equals(providerInfo.authority)) {
+        if ("ir.am3n.craptionreporter.CraptionReporterInitProvider".equals(providerInfo.authority)) {
             throw new IllegalStateException("Incorrect provider authority in manifest. Most likely due to a "
                     + "missing applicationId variable in application\'s build.gradle.");
         }

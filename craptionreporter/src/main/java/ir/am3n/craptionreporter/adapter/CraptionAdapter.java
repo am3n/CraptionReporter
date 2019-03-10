@@ -15,12 +15,12 @@ import ir.am3n.craptionreporter.ui.LogMessageActivity;
 import ir.am3n.craptionreporter.utils.FileUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class CrashLogAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CraptionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
     private ArrayList<File> crashFileList;
 
-    public CrashLogAdapter(Context context, ArrayList<File> allCrashLogs) {
+    public CraptionAdapter(Context context, ArrayList<File> allCrashLogs) {
         this.context = context;
         crashFileList = allCrashLogs;
     }

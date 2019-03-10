@@ -6,21 +6,21 @@
         android:supportsRtl="false">
 
         <provider
-            android:name=".CrashReporterInitProvider"
-            android:authorities="${applicationId}.CrashReporterInitProvider"
+            android:name=".CraptionReporterInitProvider"
+            android:authorities="${applicationId}.CraptionReporterInitProvider"
             android:enabled="true"
             android:exported="false" />
 
         <activity
-            android:name=".ui.CrashReporterActivity"
+            android:name=".ui.CraptionReporterActivity"
             android:launchMode="singleTask"
             android:taskAffinity="ir.am3n.craptionreporter.android.task"
-            android:theme="@style/CrashReporter.Theme" />
+            android:theme="@style/CraptionReporter.Theme" />
 
         <activity
             android:name=".ui.LogMessageActivity"
-            android:parentActivityName=".ui.CrashReporterActivity"
-            android:theme="@style/CrashReporter.Theme" />
+            android:parentActivityName=".ui.CraptionReporterActivity"
+            android:theme="@style/CraptionReporter.Theme" />
 
         <service android:name=".server.ServerHandlerService" />
 

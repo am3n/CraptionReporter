@@ -2,7 +2,6 @@ package ir.am3n.craptionreporter.server;
 
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,7 +9,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.RetraceOn;
 import ir.am3n.craptionreporter.utils.FileUtils;
 
@@ -34,7 +33,7 @@ public class Reporter {
         try {
 
             // barrasi inke chekar koanm.. static ro bardarm ya ...
-            if (!CrashReporter.getInstance().hasRetraceMappingFile() && CrashReporter.getInstance().getRetraceOn()==RetraceOn.DEVICE) {
+            if (!CraptionReporter.getInstance().hasRetraceMappingFile() && CraptionReporter.getInstance().getRetraceOn()==RetraceOn.DEVICE) {
                 downloadRetraceMappingFile();
             }
 
@@ -66,7 +65,7 @@ public class Reporter {
                 if (!crashDirIsEmpty()) {
                     //Log.d("Meeeeeee", "startReport() > Thread() > 0");
 
-                    JSONObject crashesPack = getCrashesPack(CrashReporter.getInstance().getUserIdentification());
+                    JSONObject crashesPack = getCrashesPack(CraptionReporter.getInstance().getUserIdentification());
 
                     UploadCrashesAsyncTask task = new UploadCrashesAsyncTask(crashesPack, new UploadCrashesAsyncTask.Listener() {
                         @Override
@@ -121,7 +120,7 @@ public class Reporter {
     }
 
     static public boolean crashDirIsEmpty() {
-        File crashDir = new File(CrashReporter.getInstance().getCrashReportPath());
+        File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
         return crashDir.listFiles().length<=0;
     }
 
@@ -133,7 +132,7 @@ public class Reporter {
         try {
             result.put("crashes", crashes);
             result.put("user_identification", user_identification);
-            result.put("app_version_code", CrashReporter.getInstance().getAppVersionCode());
+            result.put("app_version_code", CraptionReporter.getInstance().getAppVersionCode());
             result.put("os_version", Build.VERSION.SDK_INT+" ("+Build.VERSION.RELEASE+")");
             if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
                 result.put("cpu", TextUtils.join(", ", Build.SUPPORTED_ABIS));
@@ -147,7 +146,7 @@ public class Reporter {
         return result;
     }
     static private JSONArray getCrashes() {
-        File crashDir = new File(CrashReporter.getInstance().getCrashReportPath());
+        File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
         JSONArray crashes = new JSONArray();
         String stackTrace;
         JSONObject crash;
@@ -167,8 +166,8 @@ public class Reporter {
 
     public static void clearAll() {
         try {
-            FileUtils.deleteFiles(CrashReporter.getInstance().getCrashReportPath());
-            FileUtils.deleteFiles(CrashReporter.getInstance().getExceptionReportPath());
+            FileUtils.deleteFiles(CraptionReporter.getInstance().getCrashReportPath());
+            FileUtils.deleteFiles(CraptionReporter.getInstance().getExceptionReportPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -176,8 +175,8 @@ public class Reporter {
 
     public static void clear(String crashFileName) {
         try {
-            FileUtils.delete(CrashReporter.getInstance().getCrashReportPath()+File.separator+crashFileName);
-            FileUtils.delete(CrashReporter.getInstance().getExceptionReportPath()+File.separator+crashFileName);
+            FileUtils.delete(CraptionReporter.getInstance().getCrashReportPath()+File.separator+crashFileName);
+            FileUtils.delete(CraptionReporter.getInstance().getExceptionReportPath()+File.separator+crashFileName);
         } catch (Exception e) {
             e.printStackTrace();
         }

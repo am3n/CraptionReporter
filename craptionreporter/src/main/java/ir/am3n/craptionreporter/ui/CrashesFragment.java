@@ -14,20 +14,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.R;
-import ir.am3n.craptionreporter.adapter.CrashLogAdapter;
+import ir.am3n.craptionreporter.adapter.CraptionAdapter;
 import ir.am3n.craptionreporter.utils.Constants;
-import ir.am3n.craptionreporter.utils.CrashUtil;
+import ir.am3n.craptionreporter.utils.CraptionUtil;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class CrashLogFragment extends Fragment {
+public class CrashesFragment extends Fragment {
 
-    private CrashLogAdapter logAdapter;
+    private CraptionAdapter logAdapter;
 
     private RecyclerView crashRecyclerView;
 
@@ -62,7 +62,7 @@ public class CrashLogFragment extends Fragment {
 
     private void loadAdapter(Context context, RecyclerView crashRecyclerView) {
 
-        logAdapter = new CrashLogAdapter(context, getAllCrashes());
+        logAdapter = new CraptionAdapter(context, getAllCrashes());
         crashRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         crashRecyclerView.setAdapter(logAdapter);
     }
@@ -76,10 +76,10 @@ public class CrashLogFragment extends Fragment {
 
     private ArrayList<File> getAllCrashes() {
         String directoryPath;
-        String crashReportPath = CrashReporter.getInstance().getCrashReportPath();
+        String crashReportPath = CraptionReporter.getInstance().getCrashReportPath();
 
         if (TextUtils.isEmpty(crashReportPath)) {
-            directoryPath = CrashUtil.getDefaultCrashPath();
+            directoryPath = CraptionUtil.getDefaultCrashPath();
         } else {
             directoryPath = crashReportPath;
         }

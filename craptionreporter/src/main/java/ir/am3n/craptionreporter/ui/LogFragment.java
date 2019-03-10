@@ -16,10 +16,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.R;
 import ir.am3n.craptionreporter.adapter.LogAdapter;
-import ir.am3n.craptionreporter.utils.CrashUtil;
+import ir.am3n.craptionreporter.utils.CraptionUtil;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -70,10 +70,10 @@ public class LogFragment extends Fragment {
 
     private ArrayList<String> getAllLoges() {
         String directoryPath;
-        String logReportPath = CrashReporter.getInstance().getLogReportPath();
+        String logReportPath = CraptionReporter.getInstance().getLogReportPath();
 
         if (TextUtils.isEmpty(logReportPath)) {
-            directoryPath = CrashUtil.getDefaultLogPath();
+            directoryPath = CraptionUtil.getDefaultLogPath();
         } else {
             directoryPath = logReportPath;
         }

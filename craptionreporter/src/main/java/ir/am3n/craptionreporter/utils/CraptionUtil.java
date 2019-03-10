@@ -7,7 +7,6 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,7 +19,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import ir.am3n.craptionreporter.BuildConfig;
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.R;
 import ir.am3n.craptionreporter.RetraceOn;
 import ir.am3n.craptionreporter.proguard.retrace.Retrace;
@@ -28,9 +27,9 @@ import ir.am3n.craptionreporter.server.ServerHandlerService;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-public class CrashUtil {
+public class CraptionUtil {
 
-    private CrashUtil() {
+    private CraptionUtil() {
         //this class is not publicly instantiable
     }
 
@@ -41,7 +40,7 @@ public class CrashUtil {
 
     static void crash(Throwable throwable) {
         new Thread(() -> {
-            String crashReportPath = CrashReporter.getInstance().getCrashReportPath();
+            String crashReportPath = CraptionReporter.getInstance().getCrashReportPath();
             String filename = getCrashLogTime() + Constants.CRASH_SUFFIX + Constants.FILE_EXTENSION;
             writeReportToFile(crashReportPath, filename, getStackTrace(throwable));
             showNotification(throwable.getLocalizedMessage(), true);
@@ -50,7 +49,7 @@ public class CrashUtil {
 
     public static void exception(Throwable exception) {
         new Thread(() -> {
-            String exceptionReportPath = CrashReporter.getInstance().getExceptionReportPath();
+            String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
             final String filename = getCrashLogTime() + Constants.EXCEPTION_SUFFIX + Constants.FILE_EXTENSION;
             writeReportToFile(exceptionReportPath, filename, getStackTrace(exception));
             showNotification(exception.getLocalizedMessage(), false);
@@ -58,18 +57,18 @@ public class CrashUtil {
     }
     public static void exception(Throwable exception, String eventLocation) {
         new Thread(() -> {
-            String exceptionReportPath = CrashReporter.getInstance().getExceptionReportPath();
+            String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
             final String filename = getCrashLogTime() + Constants.EXCEPTION_SUFFIX + Constants.FILE_EXTENSION;
             writeReportToFile(exceptionReportPath, filename, eventLocation+"\n"+getStackTrace(exception));
             showNotification(exception.getLocalizedMessage(), false);
         }).start();
     }
 
-    public static void log(final String logReport) {
+    // todo add a parametr (APPEND:'append main file' or NEW:'create file same crashes and exceptiones')
+    public static void log(final String log) {
         new Thread(() -> {
-            String logReportPath = CrashReporter.getInstance().getLogReportPath();
-            String log = getCrashLogTime() + "  -  " + logReport + "\n";
-            writeLogToFile(logReportPath, log);
+            String logReportPath = CraptionReporter.getInstance().getLogReportPath();
+            writeLogToFile(logReportPath, getCrashLogTime()+"  -  "+log+"\n");
         }).start();
     }
 
@@ -78,6 +77,7 @@ public class CrashUtil {
         File crashDir = new File(reportPath);
 
         String[] list = crashDir.list();
+        // todo enable user to set max crash or exception or log files
         if (list.length>100) {
             for (int i=50; i<list.length; i++) {
                 //new File(crashDir, list[i]).delete();
@@ -124,6 +124,7 @@ public class CrashUtil {
             bufferedWriter.write(log);
             bufferedWriter.flush();
             bufferedWriter.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -131,10 +132,10 @@ public class CrashUtil {
 
 
     static void startReportingToServer() {
-        //Log.d("Meeeeeee", "CrashUtil() > startReportingToServer()");
-        if (CrashReporter.getInstance().isServerReportEnabled()) {
-            //Log.d("Meeeeeee", "CrashUtil() > startReportingToServer() > ServerReportEnabled");
-            Context context = CrashReporter.getInstance().getContext();
+        //Log.d("Meeeeeee", "CraptionUtil() > startReportingToServer()");
+        if (CraptionReporter.getInstance().isServerReportEnabled()) {
+            //Log.d("Meeeeeee", "CraptionUtil() > startReportingToServer() > ServerReportEnabled");
+            Context context = CraptionReporter.getInstance().getContext();
             Intent intent = new Intent(context, ServerHandlerService.class);
             context.startService(intent);
         }
@@ -142,13 +143,15 @@ public class CrashUtil {
 
     private static void showNotification(String localisedMsg, boolean isCrash) {
 
-        if (CrashReporter.getInstance().isNotificationEnabled()) {
-            Context context = CrashReporter.getInstance().getContext();
+        // todo need channel for new android versions
+
+        if (CraptionReporter.getInstance().isNotificationEnabled()) {
+            Context context = CraptionReporter.getInstance().getContext();
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
             builder.setSmallIcon(R.drawable.ic_warning_black_24dp);
 
-            Intent intent = CrashReporter.getInstance().getLaunchIntent();
+            Intent intent = CraptionReporter.getInstance().getLaunchIntent();
             intent.putExtra(Constants.LANDING, isCrash);
             intent.setAction(Long.toString(System.currentTimeMillis()));
 
@@ -164,7 +167,7 @@ public class CrashUtil {
             }
 
             builder.setAutoCancel(true);
-            builder.setColor(ContextCompat.getColor(context, R.color.colorAccent_CrashReporter));
+            builder.setColor(ContextCompat.getColor(context, R.color.colorAccent_CraptionReporter));
 
             NotificationManager notificationManager = (NotificationManager) context.
                     getSystemService(NOTIFICATION_SERVICE);
@@ -181,19 +184,19 @@ public class CrashUtil {
         printWriter.close();
 
         if (!BuildConfig.DEBUG) {
-            if (CrashReporter.getInstance().getRetraceOn()==RetraceOn.DEVICE) {
-                String retraceMappingFilePath = CrashReporter.getInstance().getRetraceMappingFilePath();
+            if (CraptionReporter.getInstance().getRetraceOn()==RetraceOn.DEVICE) {
+                String retraceMappingFilePath = CraptionReporter.getInstance().getRetraceMappingFilePath();
                 if (TextUtils.isEmpty(retraceMappingFilePath)) {
                     retraceMappingFilePath = getDefaultRetraceMappingFilePath();
                 }
                 File mappingFile = new File(retraceMappingFilePath);
                 if (mappingFile.exists()) {
                     String regularExpression = Retrace.STACK_TRACE_EXPRESSION;
-                    boolean verbose = CrashReporter.getInstance().getRetraceVerbose();
+                    boolean verbose = CraptionReporter.getInstance().getRetraceVerbose();
                     Retrace retrace = new Retrace(mappingFile, crashLog, regularExpression, verbose);
                     crashLog = retrace.retrace();
                 }
-            } else if (CrashReporter.getInstance().getRetraceOn()==RetraceOn.SERVER) {
+            } else if (CraptionReporter.getInstance().getRetraceOn()==RetraceOn.SERVER) {
                 crashLog = "retrace:"+crashLog;
             }
         }
@@ -201,33 +204,32 @@ public class CrashUtil {
         return crashLog;
     }
 
-    private static String getDefaultCrashReporterPath() {
-        String defaultPath = CrashReporter.getInstance().getContext().getExternalFilesDir(null).getAbsolutePath()
+    private static String getDefaultCraptionReporterPath() {
+        String defaultPath = CraptionReporter.getInstance().getContext().getExternalFilesDir(null).getAbsolutePath()
                 + File.separator + Constants.MAIN_DIR;
         File file = new File(defaultPath);
         file.mkdirs();
         return defaultPath;
     }
     public static String getDefaultCrashPath() {
-        String defaultPath = getDefaultCrashReporterPath() + File.separator + Constants.CRASH_REPORT_DIR;
+        String defaultPath = getDefaultCraptionReporterPath() + File.separator + Constants.CRASH_REPORT_DIR;
         File file = new File(defaultPath);
         file.mkdirs();
         return defaultPath;
     }
     public static String getDefaultExceptionPath() {
-        String defaultPath = getDefaultCrashReporterPath() + File.separator + Constants.EXCEPTION_REPORT_DIR;
+        String defaultPath = getDefaultCraptionReporterPath() + File.separator + Constants.EXCEPTION_REPORT_DIR;
         File file = new File(defaultPath);
         file.mkdirs();
         return defaultPath;
     }
     public static String getDefaultLogPath() {
-        String defaultPath = getDefaultCrashReporterPath() + File.separator + Constants.LOG_REPORT_DIR;
+        String defaultPath = getDefaultCraptionReporterPath() + File.separator + Constants.LOG_REPORT_DIR;
         File file = new File(defaultPath);
         file.mkdirs();
         return defaultPath;
     }
     public static String getDefaultRetraceMappingFilePath() {
-        String defaultPath = getDefaultCrashReporterPath() + File.separator + Constants.DEFAULT_RETRACE_MAPPING_FILE_NAME;
-        return defaultPath;
+        return getDefaultCraptionReporterPath() + File.separator + Constants.DEFAULT_RETRACE_MAPPING_FILE_NAME;
     }
 }

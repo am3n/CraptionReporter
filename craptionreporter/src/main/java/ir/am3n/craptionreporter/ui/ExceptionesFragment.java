@@ -14,20 +14,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.R;
-import ir.am3n.craptionreporter.adapter.CrashLogAdapter;
+import ir.am3n.craptionreporter.adapter.CraptionAdapter;
 import ir.am3n.craptionreporter.utils.Constants;
-import ir.am3n.craptionreporter.utils.CrashUtil;
+import ir.am3n.craptionreporter.utils.CraptionUtil;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ExceptionLogFragment extends Fragment {
+public class ExceptionesFragment extends Fragment {
 
-    private CrashLogAdapter logAdapter;
+    private CraptionAdapter logAdapter;
 
     private RecyclerView exceptionRecyclerView;
 
@@ -62,7 +62,7 @@ public class ExceptionLogFragment extends Fragment {
 
     private void loadAdapter(Context context, RecyclerView exceptionRecyclerView) {
 
-        logAdapter = new CrashLogAdapter(context, getAllExceptions());
+        logAdapter = new CraptionAdapter(context, getAllExceptions());
         exceptionRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
         exceptionRecyclerView.setAdapter(logAdapter);
     }
@@ -75,10 +75,10 @@ public class ExceptionLogFragment extends Fragment {
 
     public ArrayList<File> getAllExceptions() {
         String directoryPath;
-        String exceptionReportPath = CrashReporter.getInstance().getExceptionReportPath();
+        String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
 
         if (TextUtils.isEmpty(exceptionReportPath)){
-            directoryPath = CrashUtil.getDefaultExceptionPath();
+            directoryPath = CraptionUtil.getDefaultExceptionPath();
         } else{
             directoryPath = exceptionReportPath;
         }

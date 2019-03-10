@@ -1,6 +1,6 @@
 package ir.am3n.craptionreporter.server;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.utils.Constants;
 import android.os.AsyncTask;
 import org.json.JSONArray;
@@ -31,7 +31,7 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
 
         try {
 
-            URL url = new URL(CrashReporter.getInstance().getRepoterUrl());
+            URL url = new URL(CraptionReporter.getInstance().getRepoterUrl());
             URLConnection conection = url.openConnection();
             conection.setDoInput(true);
             conection.setDoOutput(true);

@@ -11,17 +11,17 @@ import android.view.MenuItem;
 
 import java.io.File;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.R;
 import ir.am3n.craptionreporter.adapter.MainPagerAdapter;
 import ir.am3n.craptionreporter.utils.Constants;
-import ir.am3n.craptionreporter.utils.CrashUtil;
+import ir.am3n.craptionreporter.utils.CraptionUtil;
 import ir.am3n.craptionreporter.utils.FileUtils;
 import ir.am3n.craptionreporter.utils.SimplePageChangeListener;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 
-public class CrashReporterActivity extends AppCompatActivity {
+public class CraptionReporterActivity extends AppCompatActivity {
 
     private MainPagerAdapter mainPagerAdapter;
     private int selectedTabPosition = 0;
@@ -65,16 +65,16 @@ public class CrashReporterActivity extends AppCompatActivity {
 
     private void clearCrashLog() {
         new Thread(() -> {
-            String crashReportPath = TextUtils.isEmpty(CrashReporter.getInstance().getCrashReportPath()) ?
-                    CrashUtil.getDefaultCrashPath() : CrashReporter.getInstance().getCrashReportPath();
+            String crashReportPath = TextUtils.isEmpty(CraptionReporter.getInstance().getCrashReportPath()) ?
+                    CraptionUtil.getDefaultCrashPath() : CraptionReporter.getInstance().getCrashReportPath();
             File[] logs = new File(crashReportPath).listFiles();
             for (File file : logs) {
                 FileUtils.delete(file);
             }
 
 
-            String logReportPath = TextUtils.isEmpty(CrashReporter.getInstance().getLogReportPath()) ?
-                    CrashUtil.getDefaultLogPath() : CrashReporter.getInstance().getLogReportPath();
+            String logReportPath = TextUtils.isEmpty(CraptionReporter.getInstance().getLogReportPath()) ?
+                    CraptionUtil.getDefaultLogPath() : CraptionReporter.getInstance().getLogReportPath();
             String filename = "logReports.txt";
             File file = new File(logReportPath + File.separator + filename);
             if (file.exists())

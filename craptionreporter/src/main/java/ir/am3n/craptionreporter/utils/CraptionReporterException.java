@@ -7,57 +7,57 @@ package ir.am3n.craptionreporter.utils;
 /**
  * Represents an error condition specific to the Crash Reporter for Android.
  */
-public class CrashReporterException extends RuntimeException {
+public class CraptionReporterException extends RuntimeException {
     static final long serialVersionUID = 1;
 
     /**
-     * Constructs a new CrashReporterException.
+     * Constructs a new CraptionReporterException.
      */
-    public CrashReporterException() {
+    public CraptionReporterException() {
         super();
     }
 
     /**
-     * Constructs a new CrashReporterException.
+     * Constructs a new CraptionReporterException.
      *
      * @param message the detail message of this exception
      */
-    public CrashReporterException(String message) {
+    public CraptionReporterException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new CrashReporterException.
+     * Constructs a new CraptionReporterException.
      *
      * @param format the format string (see {@link java.util.Formatter#format})
      * @param args   the list of arguments passed to the formatter.
      */
-    public CrashReporterException(String format, Object... args) {
+    public CraptionReporterException(String format, Object... args) {
         this(String.format(format, args));
     }
 
     /**
-     * Constructs a new CrashReporterException.
+     * Constructs a new CraptionReporterException.
      *
      * @param message   the detail message of this exception
      * @param throwable the cause of this exception
      */
-    public CrashReporterException(String message, Throwable throwable) {
+    public CraptionReporterException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
     /**
-     * Constructs a new CrashReporterException.
+     * Constructs a new CraptionReporterException.
      *
      * @param throwable the cause of this exception
      */
-    public CrashReporterException(Throwable throwable) {
+    public CraptionReporterException(Throwable throwable) {
         super(throwable);
     }
 
     @Override
     public String toString() {
-        // Throwable.toString() returns "CrashReporterException:{message}". Returning just "{message}"
+        // Throwable.toString() returns "CraptionReporterException:{message}". Returning just "{message}"
         // should be fine here.
         return getMessage();
     }

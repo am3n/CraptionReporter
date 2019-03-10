@@ -1,6 +1,6 @@
 package ir.am3n.craptionreporter.server;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.utils.Constants;
 import android.os.AsyncTask;
 
@@ -25,7 +25,7 @@ public class DownloadMappingFileAsyncTask extends AsyncTask<Void, Void, Void> {
 
         try {
 
-            URL url = new URL(CrashReporter.getInstance().getMappingFileUrl());
+            URL url = new URL(CraptionReporter.getInstance().getMappingFileUrl());
             URLConnection conection = url.openConnection();
             conection.setConnectTimeout(Constants.SERVER_TIMEOUTS);
             conection.setReadTimeout(Constants.SERVER_TIMEOUTS);
@@ -33,7 +33,7 @@ public class DownloadMappingFileAsyncTask extends AsyncTask<Void, Void, Void> {
 
             inputStream = new BufferedInputStream(conection.getInputStream(), 8192);
 
-            File mappingFile = new File(CrashReporter.getInstance().getRetraceMappingFilePath());
+            File mappingFile = new File(CraptionReporter.getInstance().getRetraceMappingFilePath());
             if (mappingFile.exists())
                 mappingFile.delete();
             mappingFile.createNewFile();

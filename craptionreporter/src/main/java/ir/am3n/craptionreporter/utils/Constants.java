@@ -1,6 +1,6 @@
 package ir.am3n.craptionreporter.utils;
 
-import ir.am3n.craptionreporter.CrashReporter;
+import ir.am3n.craptionreporter.CraptionReporter;
 
 public class Constants {
 
@@ -12,7 +12,7 @@ public class Constants {
 
     static final String DEFAULT_RETRACE_MAPPING_FILE_NAME = "mapping.txt";
 
-    static final String MAIN_DIR = "CrashReporter";
+    static final String MAIN_DIR = "CraptionReporter";
     static final String CRASH_REPORT_DIR = "crashReports";
     static final String EXCEPTION_REPORT_DIR = "exceptionReports";
     static final String LOG_REPORT_DIR = "logReports";
@@ -23,7 +23,7 @@ public class Constants {
 
 
     public final static Integer SERVER_TIMEOUTS = 20*1000;
-    private final static String SERVER_ROOT = "http://"+ CrashReporter.getInstance().getServerIP()+"/crashreporter/";
+    private final static String SERVER_ROOT = CraptionReporter.getInstance().getServerHost()+"CraptionReporter/";
     public final static String SERVER_MAPPINGS_FILES_DIR = SERVER_ROOT+"mappings/";
     public final static String SERVER_REPORTER = SERVER_ROOT+"Report.php";
 

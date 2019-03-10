@@ -5,21 +5,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 
 import ir.am3n.craptionreporter.server.Reporter;
 import ir.am3n.craptionreporter.server.ServerHandlerService;
-import ir.am3n.craptionreporter.ui.CrashReporterActivity;
+import ir.am3n.craptionreporter.ui.CraptionReporterActivity;
 import ir.am3n.craptionreporter.utils.Constants;
-import ir.am3n.craptionreporter.utils.CrashReporterExceptionHandler;
-import ir.am3n.craptionreporter.utils.CrashReporterNotInitializedException;
-import ir.am3n.craptionreporter.utils.CrashUtil;
+import ir.am3n.craptionreporter.utils.CraptionReporterExceptionHandler;
+import ir.am3n.craptionreporter.utils.CraptionUtil;
+import ir.am3n.craptionreporter.utils.CraptionReporterNotInitializedException;
 
-public class CrashReporter {
+public class CraptionReporter {
 
-    private static CrashReporter instance;
+    private static CraptionReporter instance;
 
     private static Context applicationContext;
 
@@ -30,7 +29,7 @@ public class CrashReporter {
 
     private static boolean isNotificationEnabled = true;
 
-    private static String serverIP = "";
+    private static String serverHost = "";
     private static Integer appVersionCode;
     private static boolean isServerReportEnabled = false;
     private static RetraceOn retraceOn = RetraceOn.NONE;
@@ -39,28 +38,28 @@ public class CrashReporter {
     private static String userIdentification;
 
 
-    public static CrashReporter with(Context context) {
+    public static CraptionReporter with(Context context) {
         applicationContext = context;
         if (instance==null)
-            instance = new CrashReporter();
+            instance = new CraptionReporter();
         return instance;
     }
-    public static CrashReporter getInstance() {
+    public static CraptionReporter getInstance() {
         if (instance==null)
-            instance = new CrashReporter();
+            instance = new CraptionReporter();
         return instance;
     }
 
-    public CrashReporter disableNotification() {
+    public CraptionReporter disableNotification() {
         isNotificationEnabled = false;
         return instance;
     }
-    public CrashReporter appVersionCode(int versionCode) {
+    public CraptionReporter appVersionCode(int versionCode) {
         appVersionCode = versionCode;
         return instance;
     }
-    public CrashReporter enableServer(String ip, int versionCode, RetraceOn retrace) {
-        serverIP = ip;
+    public CraptionReporter enableServer(String host, int versionCode, RetraceOn retrace) {
+        serverHost = host;
         appVersionCode = versionCode;
         isServerReportEnabled = true;
 
@@ -69,11 +68,11 @@ public class CrashReporter {
 
         return instance;
     }
-    public CrashReporter build() {
-        //Log.d("Meeeeeee", "CrashReporter() > build()");
+    public CraptionReporter build() {
+        //Log.d("Meeeeeee", "CraptionReporter() > build()");
         setUpExceptionHandler();
         if (isServerReportEnabled) {
-            //Log.d("Meeeeeee", "CrashReporter() > build() > report()");
+            //Log.d("Meeeeeee", "CraptionReporter() > build() > report()");
             new Reporter()
                     .listener(() -> {
                         if (ServerHandlerService.handler!=null) {
@@ -87,15 +86,15 @@ public class CrashReporter {
     }
 
     private static void setUpExceptionHandler() {
-        if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CrashReporterExceptionHandler)) {
-            Thread.setDefaultUncaughtExceptionHandler(new CrashReporterExceptionHandler());
+        if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CraptionReporterExceptionHandler)) {
+            Thread.setDefaultUncaughtExceptionHandler(new CraptionReporterExceptionHandler());
         }
     }
 
     public Context getContext() {
         if (applicationContext == null) {
             try {
-                throw new CrashReporterNotInitializedException("Initialize CrashReporter : call CrashReporter.initialize(context, crashReportPath)");
+                throw new CraptionReporterNotInitializedException("Initialize CraptionReporter : call CraptionReporter.initialize(context, crashReportPath)");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -105,13 +104,13 @@ public class CrashReporter {
 
     public String getCrashReportPath() {
         if (TextUtils.isEmpty(crashReportPath)) {
-            return CrashUtil.getDefaultCrashPath();
+            return CraptionUtil.getDefaultCrashPath();
         }
         return crashReportPath;
     }
     public String getExceptionReportPath() {
         if (TextUtils.isEmpty(exceptionReportPath)) {
-            return CrashUtil.getDefaultExceptionPath();
+            return CraptionUtil.getDefaultExceptionPath();
         }
         return exceptionReportPath;
     }
@@ -131,7 +130,7 @@ public class CrashReporter {
     }
     public String getRetraceMappingFilePath() {
         if (TextUtils.isEmpty(retraceMappingFilePath)) {
-            return CrashUtil.getDefaultRetraceMappingFilePath();
+            return CraptionUtil.getDefaultRetraceMappingFilePath();
         }
         return retraceMappingFilePath;
     }
@@ -142,8 +141,8 @@ public class CrashReporter {
         return retraceVerbose;
     }
 
-    public String getServerIP() {
-        return serverIP;
+    public String getServerHost() {
+        return serverHost;
     }
     public int getAppVersionCode() {
         return appVersionCode;
@@ -158,30 +157,30 @@ public class CrashReporter {
 
     public void setUserIdentification(String identification) {
         userIdentification = identification;
-        SharedPreferences sh = applicationContext.getSharedPreferences("crashreporte", Context.MODE_PRIVATE);
+        SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
         sh.edit().putString("user_identification", identification).apply();
     }
     public String getUserIdentification() {
         if (TextUtils.isEmpty(userIdentification)) {
-            SharedPreferences sh = applicationContext.getSharedPreferences("crashreporte", Context.MODE_PRIVATE);
+            SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
             return sh.getString("user_identification", "");
         }
         return userIdentification;
     }
 
     public Intent getLaunchIntent() {
-        return new Intent(applicationContext, CrashReporterActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return new Intent(applicationContext, CraptionReporterActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
 
 
     public static void exception(Exception exception) {
-        CrashUtil.exception(exception);
+        CraptionUtil.exception(exception);
     }
     public static void exception(Throwable exception, String eventLocation) {
-        CrashUtil.exception(exception, eventLocation);
+        CraptionUtil.exception(exception, eventLocation);
     }
     public static void log(String log) {
-        CrashUtil.log(log);
+        CraptionUtil.log(log);
     }
 
 }
