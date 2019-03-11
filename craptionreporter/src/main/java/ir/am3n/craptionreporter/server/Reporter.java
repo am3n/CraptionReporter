@@ -1,15 +1,27 @@
 package ir.am3n.craptionreporter.server;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Point;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.WindowManager;
+
+import com.jaredrummler.android.device.DeviceName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.Locale;
 
 import ir.am3n.craptionreporter.CraptionReporter;
+import ir.am3n.craptionreporter.PermissionRequest;
 import ir.am3n.craptionreporter.RetraceOn;
 import ir.am3n.craptionreporter.utils.FileUtils;
 
@@ -134,11 +146,126 @@ public class Reporter {
             result.put("user_identification", user_identification);
             result.put("app_version_code", CraptionReporter.getInstance().getAppVersionCode());
             result.put("os_version", Build.VERSION.SDK_INT+" ("+Build.VERSION.RELEASE+")");
+
+            try {
+
+                Context context = CraptionReporter.getInstance().getContext();
+
+                String device_imei = "";
+                try {
+                    if (PermissionRequest.haveTelephone(context)) {
+                        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                        @SuppressLint({"MissingPermission", "HardwareIds"})
+                        String imei = telephonyManager != null ? telephonyManager.getDeviceId() : "";
+                        if (imei != null) {
+                            device_imei = imei;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                result.put("device_imei", device_imei);
+
+
+                String device_model = Build.BRAND;
+                try {
+                    device_model += " : " + DeviceName.getDeviceName();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                result.put("device_model", device_model);
+
+
+                String device_screenclass = "Unknown";
+                try {
+                    if ((context.getResources().getConfiguration().screenLayout &
+                            Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
+                        device_screenclass = "Large";
+                    } else if ((context.getResources().getConfiguration().screenLayout &
+                            Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+                        device_screenclass = "Normal";
+                    } else if ((context.getResources().getConfiguration().screenLayout &
+                            Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_SMALL) {
+                        device_screenclass = "Small";
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                result.put("device_screenclass", device_screenclass);
+
+
+                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                float density = metrics.density;
+                String device_dpiclass = "Unknown";
+                try {
+                    if (density <= 0.75f) {
+                        device_dpiclass = "ldpi";
+                    } else if (density <= 1.0f) {
+                        device_dpiclass = "mdpi";
+                    } else if (density <= 1.5f) {
+                        device_dpiclass = "hdpi";
+                    } else if (density <= 2.0f) {
+                        device_dpiclass = "xhdpi";
+                    } else if (density <= 3.0f) {
+                        device_dpiclass = "xxhdpi";
+                    } else if (density <= 4.0f) {
+                        device_dpiclass = "xxxhdpi";
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                result.put("device_dpiclass", device_dpiclass);
+
+
+                String device_screensize = "";
+                String device_screen_dimensions_dpis = "";
+                String device_screen_dimensions_pixels = "";
+                try {
+                    int orientation = context.getResources().getConfiguration().orientation;
+                    WindowManager wm = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
+                    Display display = wm.getDefaultDisplay();
+                    Point screenSize = new Point();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        display.getRealSize(screenSize);
+                    } else {
+                        display.getSize(screenSize);
+                    }
+                    int screenSize_x = screenSize.x;
+                    int screenSize_y = screenSize.y;
+                    int width = (orientation == Configuration.ORIENTATION_PORTRAIT ? screenSize_x : screenSize_y);
+                    int height = (orientation == Configuration.ORIENTATION_PORTRAIT ? screenSize_y : screenSize_x);
+
+                    double wi = (double) width / (double) metrics.xdpi;
+                    double hi = (double) height / (double) metrics.ydpi;
+                    double x = Math.pow(wi, 2);
+                    double y = Math.pow(hi, 2);
+                    double screenInches = Math.sqrt(x + y);
+                    device_screensize = String.format(Locale.US, "%.2f", screenInches);
+
+
+                    device_screen_dimensions_dpis = (int) (width / density) + " x " + (int) (height / density);
+
+
+                    device_screen_dimensions_pixels = width + " x " + height;
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                result.put("device_screensize", device_screensize);
+                result.put("device_screen_dimensions_dpis", device_screen_dimensions_dpis);
+                result.put("device_screen_dimensions_pixels", device_screen_dimensions_pixels);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
                 result.put("cpu", TextUtils.join(", ", Build.SUPPORTED_ABIS));
             } else {
                 result.put("cpu", Build.CPU_ABI+", "+Build.CPU_ABI2);
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
