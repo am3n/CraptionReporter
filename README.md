@@ -21,9 +21,8 @@ dependencies {
 ```
 
 ## Server Side
-```
+
 https://github.com/am3n/CraptionReporter-Server
-```
 
 ## Credits
 
