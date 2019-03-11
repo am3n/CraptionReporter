@@ -4,9 +4,6 @@
 
 CraptionReporter is a crash, exception and log reporter tool for android
 
-Server side coming soon..
-
-
 
 ## Download
 
@@ -23,6 +20,10 @@ dependencies {
 }
 ```
 
+## Server Side
+```
+https://github.com/am3n/CraptionReporter-Server
+```
 
 ## Credits
 
