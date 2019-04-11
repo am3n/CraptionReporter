@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+
+import android.os.Environment;
 import android.text.TextUtils;
 
 import java.io.BufferedWriter;
@@ -205,8 +207,11 @@ public class CraptionUtil {
     }
 
     private static String getDefaultCraptionReporterPath() {
-        String defaultPath = CraptionReporter.getInstance().getContext().getExternalFilesDir(null).getAbsolutePath()
-                + File.separator + Constants.MAIN_DIR;
+        File storage = CraptionReporter.getInstance().getContext().getExternalFilesDir(null);
+        if (storage==null) {
+            storage = Environment.getExternalStorageDirectory();
+        }
+        String defaultPath = storage.getAbsolutePath() + File.separator + Constants.MAIN_DIR;
         File file = new File(defaultPath);
         file.mkdirs();
         return defaultPath;
