@@ -74,10 +74,10 @@ public class Reporter {
 
                 //Log.d("Meeeeeee", "startReport() > Thread() > start()");
 
-                if (!crashDirIsEmpty()) {
+                if (!crashDirIsEmpty() || !exceptionDirIsEmpty()) {
                     //Log.d("Meeeeeee", "startReport() > Thread() > 0");
 
-                    JSONObject crashesPack = getCrashesPack(CraptionReporter.getInstance().getUserIdentification());
+                    JSONObject crashesPack = getCrashExceptionsPack(CraptionReporter.getInstance().getUserIdentification());
 
                     UploadCrashesAsyncTask task = new UploadCrashesAsyncTask(crashesPack, new UploadCrashesAsyncTask.Listener() {
                         @Override
@@ -131,18 +131,30 @@ public class Reporter {
         }).start();
     }
 
-    static public boolean crashDirIsEmpty() {
+    static private boolean crashDirIsEmpty() {
         File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
-        return crashDir.listFiles().length<=0;
+        if (crashDir.listFiles() != null)
+            return crashDir.listFiles().length <= 0;
+        return true;
     }
 
-    static public JSONObject getCrashesPack(String user_identification) {
+    static private boolean exceptionDirIsEmpty() {
+        File exceptionDir = new File(CraptionReporter.getInstance().getExceptionReportPath());
+        if (exceptionDir.listFiles() != null)
+            return exceptionDir.listFiles().length<=0;
+        return true;
+    }
+
+    static private JSONObject getCrashExceptionsPack(String user_identification) {
 
         JSONArray crashes = getCrashes();
+
+        JSONArray exceptions = getExceptions();
 
         JSONObject result = new JSONObject();
         try {
             result.put("crashes", crashes);
+            result.put("exceptions", exceptions);
             result.put("user_identification", user_identification);
             result.put("app_version_code", CraptionReporter.getInstance().getAppVersionCode());
             result.put("os_version", Build.VERSION.SDK_INT+" ("+Build.VERSION.RELEASE+")");
@@ -272,24 +284,49 @@ public class Reporter {
 
         return result;
     }
+
     static private JSONArray getCrashes() {
         File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
         JSONArray crashes = new JSONArray();
         String stackTrace;
         JSONObject crash;
-        for (File crashFile : crashDir.listFiles()) {
-            stackTrace = FileUtils.readFromFile(crashFile);
-            crash = new JSONObject();
-            try {
-                crash.put("file_name", crashFile.getName());
-                crash.put("stack_trace", stackTrace);
-            } catch (JSONException e) {
-                e.printStackTrace();
+        if (crashDir.listFiles() != null) {
+            for (File crashFile : crashDir.listFiles()) {
+                stackTrace = FileUtils.readFromFile(crashFile);
+                crash = new JSONObject();
+                try {
+                    crash.put("file_name", crashFile.getName());
+                    crash.put("stack_trace", stackTrace);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                crashes.put(crash);
             }
-            crashes.put(crash);
         }
         return crashes;
     }
+
+    static private JSONArray getExceptions() {
+        File exceptionDir = new File(CraptionReporter.getInstance().getExceptionReportPath());
+        JSONArray exceptions = new JSONArray();
+        String stackTrace;
+        JSONObject exception;
+        if (exceptionDir.listFiles() != null) {
+            for (File crashFile : exceptionDir.listFiles()) {
+                stackTrace = FileUtils.readFromFile(crashFile);
+                exception = new JSONObject();
+                try {
+                    exception.put("file_name", crashFile.getName());
+                    exception.put("stack_trace", stackTrace);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                exceptions.put(exception);
+            }
+        }
+        return exceptions;
+    }
+
 
     public static void clearAll() {
         try {

@@ -16,7 +16,7 @@ public class ServerHandlerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        //Log.d("Meeeeeee", "ServerHandlerService() > onBind()");
+        Log.d("Meeeeeee", "ServerHandlerService() > onBind()");
         return null;
     }
 
@@ -24,7 +24,7 @@ public class ServerHandlerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        //Log.d("Meeeeeee", "ServerHandlerService() > onCreate()");
+        Log.d("Meeeeeee", "ServerHandlerService() > onCreate()");
         /*new Reporter()
                 .listener(new Reporter.Listener() {
                     @Override
@@ -39,7 +39,7 @@ public class ServerHandlerService extends Service {
                 public void handleMessage(Message msg) {
                     super.handleMessage(msg);
                     if (msg.what == 0) {
-                        //Log.d("Meeeeeee", "ServerHandlerService() > stopSelf()");
+                        Log.d("Meeeeeee", "ServerHandlerService() > stopSelf()");
                         stopSelf();
                     }
                 }
@@ -49,7 +49,7 @@ public class ServerHandlerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Log.d("Meeeeeee", "ServerHandlerService() > onStartCommand()");
+        Log.d("Meeeeeee", "ServerHandlerService() > onStartCommand()");
         return START_STICKY;
     }
 

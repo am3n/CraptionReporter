@@ -44,7 +44,7 @@ public class CraptionUtil {
         new Thread(() -> {
             String crashReportPath = CraptionReporter.getInstance().getCrashReportPath();
             String filename = getCrashLogTime() + Constants.CRASH_SUFFIX + Constants.FILE_EXTENSION;
-            writeReportToFile(crashReportPath, filename, getStackTrace(throwable));
+            writeReportToFile(crashReportPath, filename, getStackTrace(throwable, null));
             showNotification(throwable.getLocalizedMessage(), true);
         }).start();
     }
@@ -53,7 +53,7 @@ public class CraptionUtil {
         new Thread(() -> {
             String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
             final String filename = getCrashLogTime() + Constants.EXCEPTION_SUFFIX + Constants.FILE_EXTENSION;
-            writeReportToFile(exceptionReportPath, filename, getStackTrace(exception));
+            writeReportToFile(exceptionReportPath, filename, getStackTrace(exception, null));
             showNotification(exception.getLocalizedMessage(), false);
         }).start();
     }
@@ -61,7 +61,7 @@ public class CraptionUtil {
         new Thread(() -> {
             String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
             final String filename = getCrashLogTime() + Constants.EXCEPTION_SUFFIX + Constants.FILE_EXTENSION;
-            writeReportToFile(exceptionReportPath, filename, eventLocation+"\n"+getStackTrace(exception));
+            writeReportToFile(exceptionReportPath, filename, getStackTrace(exception, eventLocation));
             showNotification(exception.getLocalizedMessage(), false);
         }).start();
     }
@@ -133,7 +133,7 @@ public class CraptionUtil {
     }
 
 
-    static void startReportingToServer() {
+    public static void startReportingToServer() {
         //Log.d("Meeeeeee", "CraptionUtil() > startReportingToServer()");
         if (CraptionReporter.getInstance().isServerReportEnabled()) {
             //Log.d("Meeeeeee", "CraptionUtil() > startReportingToServer() > ServerReportEnabled");
@@ -177,7 +177,7 @@ public class CraptionUtil {
         }
     }
 
-    private static String getStackTrace(Throwable e) {
+    private static String getStackTrace(Throwable e, String eventLocation) {
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);
 
@@ -198,19 +198,26 @@ public class CraptionUtil {
                     Retrace retrace = new Retrace(mappingFile, crashLog, regularExpression, verbose);
                     crashLog = retrace.retrace();
                 }
+                if (eventLocation != null)
+                    crashLog = "at: "+eventLocation+"\r\n"+crashLog;
             } else if (CraptionReporter.getInstance().getRetraceOn()==RetraceOn.SERVER) {
-                crashLog = "retrace:"+crashLog;
+                if (eventLocation != null)
+                    crashLog = "retrace:"+"\r\n"+"at: "+eventLocation+"\r\n"+crashLog;
+                else
+                    crashLog = "retrace:"+"\r\n"+crashLog;
             }
-        }
+        } else
+            if (eventLocation != null)
+                crashLog = "at: "+eventLocation+"\r\n"+crashLog;
 
         return crashLog;
     }
 
     private static String getDefaultCraptionReporterPath() {
         File storage = CraptionReporter.getInstance().getContext().getExternalFilesDir(null);
-        if (storage==null) {
+        if (storage==null)
             storage = Environment.getExternalStorageDirectory();
-        }
+
         String defaultPath = storage.getAbsolutePath() + File.separator + Constants.MAIN_DIR;
         File file = new File(defaultPath);
         file.mkdirs();

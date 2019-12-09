@@ -1,5 +1,6 @@
 package ir.am3n.craptionreporter;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,8 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import java.io.File;
+import java.util.List;
+import java.util.function.Consumer;
 
 import ir.am3n.craptionreporter.server.Reporter;
 import ir.am3n.craptionreporter.server.ServerHandlerService;
@@ -81,8 +84,26 @@ public class CraptionReporter {
                             ServerHandlerService.handler.sendMessage(message);
                         }
                     }).report();
+            if (!isServiceRunning(getContext(), ServerHandlerService.class)) {
+                CraptionUtil.startReportingToServer();
+            }
         }
         return instance;
+    }
+
+    private static boolean isServiceRunning(Context context, Class<?> serviceClass) {
+        String className = serviceClass.getName();
+        if (context!=null && context.getSystemService(Context.ACTIVITY_SERVICE) != null) {
+            List<ActivityManager.RunningServiceInfo> list =
+                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE);
+            if (list != null) {
+                for (ActivityManager.RunningServiceInfo serviceInfo : list) {
+                    if (className.equals(serviceInfo.service.getClassName()))
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static void setUpExceptionHandler() {
