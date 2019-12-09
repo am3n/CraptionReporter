@@ -20,6 +20,9 @@ dependencies {
 }
 ```
 
+## Use
+see sample app
+
 ## Server Side
 
 https://github.com/am3n/CraptionReporter-Server
