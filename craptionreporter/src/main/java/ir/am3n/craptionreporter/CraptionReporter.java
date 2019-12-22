@@ -30,6 +30,8 @@ public class CraptionReporter {
     private static String logReportPath;
     private static String retraceMappingFilePath;
 
+    private static int logSize = 500; // killobyetes
+
     private static boolean isNotificationEnabled = true;
 
     private static String serverHost = "";
@@ -137,6 +139,13 @@ public class CraptionReporter {
     }
     public String getLogReportPath() {
         return logReportPath;
+    }
+
+    public void setLogSize(int size) {
+        logSize = size;
+    }
+    public int getLogSize() {
+        return logSize;
     }
 
     public boolean isNotificationEnabled() {

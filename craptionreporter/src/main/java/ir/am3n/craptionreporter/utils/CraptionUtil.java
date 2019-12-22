@@ -95,6 +95,19 @@ public class CraptionUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+        String logReportPath = CraptionReporter.getInstance().getLogReportPath();
+        if (TextUtils.isEmpty(logReportPath)) {
+            logReportPath = getDefaultLogPath();
+        }
+        File logDir = new File(logReportPath);
+        if (!logDir.exists() || !logDir.isDirectory()) {
+            logReportPath = getDefaultLogPath();
+        }
+        File logFile = new File(logReportPath + File.separator + "logReports.txt");
+        logFile.renameTo(new File(logReportPath + File.separator + "log_" + filename));
+
     }
     private static void writeLogToFile(String logReportPath, String log) {
 
@@ -115,8 +128,8 @@ public class CraptionUtil {
             if (!file.exists())
                 file.createNewFile();
 
-            int file_size_kilobyte = Integer.parseInt(String.valueOf(file.length()/5120));
-            if (file_size_kilobyte>5120) {
+            long file_size_kilobyte = file.length() / 1024; // kilobytes
+            if (file_size_kilobyte > CraptionReporter.getInstance().getLogSize()) {
                 file.delete();
                 file.createNewFile();
             }

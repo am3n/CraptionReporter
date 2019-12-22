@@ -286,17 +286,25 @@ public class Reporter {
     }
 
     static private JSONArray getCrashes() {
+
         File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
+        File logDir = new File(CraptionReporter.getInstance().getLogReportPath());
+
         JSONArray crashes = new JSONArray();
         String stackTrace;
+        String logOfCrash = "";
         JSONObject crash;
         if (crashDir.listFiles() != null) {
             for (File crashFile : crashDir.listFiles()) {
                 stackTrace = FileUtils.readFromFile(crashFile);
+                File logFile = new File(logDir.getAbsolutePath()+File.separator+"log_"+crashFile.getName());
+                if (logFile.exists())
+                    logOfCrash = FileUtils.readFromFile(logFile);
                 crash = new JSONObject();
                 try {
                     crash.put("file_name", crashFile.getName());
                     crash.put("stack_trace", stackTrace);
+                    crash.put("log", logOfCrash);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
