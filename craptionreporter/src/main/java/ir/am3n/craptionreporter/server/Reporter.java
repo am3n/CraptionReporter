@@ -115,6 +115,7 @@ public class Reporter {
                 } else {
                     if (listener!=null)
                         listener.onStop();
+                    CraptionReporter.clearLogs();
                 }
 
             } catch (Exception e) {
@@ -304,7 +305,7 @@ public class Reporter {
                 try {
                     crash.put("file_name", crashFile.getName());
                     crash.put("stack_trace", stackTrace);
-                    crash.put("log", logOfCrash);
+                    crash.put("logs", logOfCrash);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import ir.am3n.craptionreporter.server.Reporter;
@@ -35,6 +36,7 @@ public class CraptionReporter {
     private static boolean isNotificationEnabled = true;
 
     private static String serverHost = "";
+    private static Map<String, String> serverHeaders;
     private static Integer appVersionCode;
     private static boolean isServerReportEnabled = false;
     private static RetraceOn retraceOn = RetraceOn.NONE;
@@ -63,8 +65,16 @@ public class CraptionReporter {
         appVersionCode = versionCode;
         return instance;
     }
+    public CraptionReporter setLogSize(int size) {
+        logSize = size;
+        return this;
+    }
     public CraptionReporter enableServer(String host, int versionCode, RetraceOn retrace) {
+        return enableServer(host, null, versionCode, retrace);
+    }
+    public CraptionReporter enableServer(String host, Map<String, String> headers, int versionCode, RetraceOn retrace) {
         serverHost = host;
+        serverHeaders = headers;
         appVersionCode = versionCode;
         isServerReportEnabled = true;
 
@@ -87,6 +97,7 @@ public class CraptionReporter {
                         }
                     }).report();
             if (!isServiceRunning(getContext(), ServerHandlerService.class)) {
+                // start a service restart when app ended, serive runs and reports all
                 CraptionUtil.startReportingToServer();
             }
         }
@@ -138,12 +149,12 @@ public class CraptionReporter {
         return exceptionReportPath;
     }
     public String getLogReportPath() {
+        if (TextUtils.isEmpty(logReportPath)) {
+            return CraptionUtil.getDefaultLogPath();
+        }
         return logReportPath;
     }
 
-    public void setLogSize(int size) {
-        logSize = size;
-    }
     public int getLogSize() {
         return logSize;
     }
@@ -174,6 +185,9 @@ public class CraptionReporter {
     public String getServerHost() {
         return serverHost;
     }
+    public Map<String, String> getServerHeaders() {
+        return serverHeaders;
+    }
     public int getAppVersionCode() {
         return appVersionCode;
     }
@@ -203,6 +217,9 @@ public class CraptionReporter {
     }
 
 
+    public static void crash() {
+        throw new RuntimeException("Craption Reporter Crash");
+    }
     public static void exception(Exception exception) {
         CraptionUtil.exception(exception);
     }
@@ -211,6 +228,10 @@ public class CraptionReporter {
     }
     public static void log(String log) {
         CraptionUtil.log(log);
+    }
+
+    public static void clearLogs() {
+        CraptionUtil.clearLogs();
     }
 
 }

@@ -3,14 +3,19 @@ package ir.am3n.craptionreporter.server;
 import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.utils.Constants;
 import android.os.AsyncTask;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray> {
 
@@ -32,12 +37,20 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
         try {
 
             URL url = new URL(CraptionReporter.getInstance().getRepoterUrl());
-            URLConnection conection = url.openConnection();
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
             conection.setDoInput(true);
             conection.setDoOutput(true);
             conection.setConnectTimeout(Constants.SERVER_TIMEOUTS);
             conection.setReadTimeout(Constants.SERVER_TIMEOUTS);
+
+            Map<String, String> headers = CraptionReporter.getInstance().getServerHeaders();
+            if (headers != null)
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    conection.setRequestProperty(entry.getKey(), entry.getValue());
+                }
+
             conection.connect();
+
 
             outputStream = new DataOutputStream(conection.getOutputStream());
             outputStream.writeBytes(crashes.toString());
@@ -51,7 +64,6 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
                 stringBuilder.append(line).append('\n');
             }
             bufferedReader.close();
-            
             JSONArray jsonArray = new JSONArray(stringBuilder.toString());
             if (jsonArray.length() > 0) {
                 uploaded = true;
@@ -84,7 +96,7 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
             listener.onError();
     }
 
-    interface Listener {
+    public interface Listener {
         void onUploaded(JSONArray response);
         void onError();
     }

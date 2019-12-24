@@ -9,10 +9,12 @@ import androidx.core.content.ContextCompat;
 
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -36,7 +38,7 @@ public class CraptionUtil {
     }
 
     private static String getCrashLogTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.ENGLISH);
         return dateFormat.format(new Date());
     }
 
@@ -50,18 +52,16 @@ public class CraptionUtil {
     }
 
     public static void exception(Throwable exception) {
-        new Thread(() -> {
-            String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
-            final String filename = getCrashLogTime() + Constants.EXCEPTION_SUFFIX + Constants.FILE_EXTENSION;
-            writeReportToFile(exceptionReportPath, filename, getStackTrace(exception, null));
-            showNotification(exception.getLocalizedMessage(), false);
-        }).start();
+        exception(exception, null);
     }
-    public static void exception(Throwable exception, String eventLocation) {
+    synchronized public static void exception(Throwable exception, String eventLocation) {
         new Thread(() -> {
+            Log.d("CraptionReporter", "exception() > el: "+eventLocation);
             String exceptionReportPath = CraptionReporter.getInstance().getExceptionReportPath();
             final String filename = getCrashLogTime() + Constants.EXCEPTION_SUFFIX + Constants.FILE_EXTENSION;
+            Log.d("CraptionReporter", "exception() > filename: "+filename);
             writeReportToFile(exceptionReportPath, filename, getStackTrace(exception, eventLocation));
+            Log.d("CraptionReporter", "exception() > writed");
             showNotification(exception.getLocalizedMessage(), false);
         }).start();
     }
@@ -145,6 +145,22 @@ public class CraptionUtil {
         }
     }
 
+    public static void clearLogs() {
+        String logReportPath = CraptionReporter.getInstance().getLogReportPath();
+        if (TextUtils.isEmpty(logReportPath)) {
+            logReportPath = getDefaultLogPath();
+        }
+        File logDir = new File(logReportPath);
+        if (!logDir.exists() || !logDir.isDirectory()) {
+            logReportPath = getDefaultLogPath();
+        }
+        File logFile = new File(logReportPath + File.separator + "logReports.txt");
+        try {
+            logFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void startReportingToServer() {
         //Log.d("Meeeeeee", "CraptionUtil() > startReportingToServer()");
