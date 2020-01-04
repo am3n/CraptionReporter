@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ir.am3n.craptionreporter.CraptionReporter;
+import ir.am3n.craptionreporter.server.Reporter;
 import ir.am3n.craptionreporter.server.UploadCrashesAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
