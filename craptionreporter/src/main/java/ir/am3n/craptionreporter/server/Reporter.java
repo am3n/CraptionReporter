@@ -132,21 +132,21 @@ public class Reporter {
         }).start();
     }
 
-    static private boolean crashDirIsEmpty() {
+    static boolean crashDirIsEmpty() {
         File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
         if (crashDir.listFiles() != null)
             return crashDir.listFiles().length <= 0;
         return true;
     }
 
-    static private boolean exceptionDirIsEmpty() {
+    static boolean exceptionDirIsEmpty() {
         File exceptionDir = new File(CraptionReporter.getInstance().getExceptionReportPath());
         if (exceptionDir.listFiles() != null)
             return exceptionDir.listFiles().length<=0;
         return true;
     }
 
-    static private JSONObject getCrashExceptionsPack(String user_identification) {
+    static JSONObject getCrashExceptionsPack(String user_identification) {
 
         JSONArray crashes = getCrashes();
 
@@ -286,7 +286,7 @@ public class Reporter {
         return result;
     }
 
-    static private JSONArray getCrashes() {
+    static JSONArray getCrashes() {
 
         File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
         File logDir = new File(CraptionReporter.getInstance().getLogReportPath());
@@ -315,7 +315,7 @@ public class Reporter {
         return crashes;
     }
 
-    static private JSONArray getExceptions() {
+    static JSONArray getExceptions() {
         File exceptionDir = new File(CraptionReporter.getInstance().getExceptionReportPath());
         JSONArray exceptions = new JSONArray();
         String stackTrace;
