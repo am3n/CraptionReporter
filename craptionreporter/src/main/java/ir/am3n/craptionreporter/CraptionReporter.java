@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -132,6 +133,7 @@ public class CraptionReporter {
         try {
             new NetworkStateReceiver(applicationContext, state -> {
                 if (state == NetworkStateReceiver.State.CONNECTED) {
+                    Log.d("Meeeeee", "CraptionReporter > setUpNetworkReceiver() > receiver() > connected");
                     new Reporter().report();
                 }
             });

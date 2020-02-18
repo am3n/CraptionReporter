@@ -28,6 +28,8 @@ import ir.am3n.craptionreporter.utils.FileUtils;
 
 public class Reporter {
 
+    static private boolean reporting = false;
+
     public interface Listener {
         void onStop();
     }
@@ -42,8 +44,12 @@ public class Reporter {
         return this;
     }
 
-    public void report() {
+    synchronized public void report() {
         try {
+
+            if (reporting)
+                return;
+            reporting = true;
 
             Log.d("Meeeeeee", "Reporter > start()");
 
@@ -55,6 +61,7 @@ public class Reporter {
             startReport();
 
         } catch (Exception e) {
+            reporting = false;
             e.printStackTrace();
             if (listener!=null)
                 listener.onStop();
@@ -96,6 +103,7 @@ public class Reporter {
                                     e.printStackTrace();
                                 }
                             }
+                            reporting = false;
                             Log.d("Meeeeeee", "Reporter > start() > startReport() > sent");
                             //doing = false;
                             //stopSelf();
@@ -110,7 +118,7 @@ public class Reporter {
                             //doing = false;
                             //stopSelf();
                             //intent.putExtra("doing", false);
-
+                            reporting = false;
                             if (listener!=null)
                                 listener.onStop();
                         }
@@ -120,14 +128,15 @@ public class Reporter {
                     //return;
 
                 } else {
+                    reporting = false;
                     if (listener!=null)
                         listener.onStop();
                     CraptionReporter.clearLogs();
                 }
 
             } catch (Exception e) {
+                reporting = false;
                 e.printStackTrace();
-
                 if (listener!=null)
                     listener.onStop();
             }

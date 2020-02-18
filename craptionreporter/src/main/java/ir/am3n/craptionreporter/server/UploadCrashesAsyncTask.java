@@ -40,7 +40,7 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
             HttpURLConnection conection = (HttpURLConnection) url.openConnection();
             conection.setDoInput(true);
             conection.setDoOutput(true);
-            conection.setConnectTimeout(Constants.SERVER_TIMEOUTS);
+            conection.setConnectTimeout(Constants.SERVER_TIMEOUTS/2);
             conection.setReadTimeout(Constants.SERVER_TIMEOUTS);
 
             Map<String, String> headers = CraptionReporter.getInstance().getServerHeaders();
