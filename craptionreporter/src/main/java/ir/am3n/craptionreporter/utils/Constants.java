@@ -23,7 +23,7 @@ public class Constants {
 
 
     public final static Integer SERVER_TIMEOUTS = 20*1000;
-    private final static String SERVER_ROOT = CraptionReporter.getInstance().getServerHost()+"CraptionReporter/";
+    private final static String SERVER_ROOT = CraptionReporter.getInstance().getServerHost()+"craptionreporter/";
     public final static String SERVER_MAPPINGS_FILES_DIR = SERVER_ROOT+"mappings/";
     public final static String SERVER_REPORTER = SERVER_ROOT+"Report.php";
 

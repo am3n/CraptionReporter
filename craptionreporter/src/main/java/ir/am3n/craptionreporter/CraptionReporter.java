@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.os.Message;
 import android.text.TextUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +102,7 @@ public class CraptionReporter {
                 // start a service restart when app ended, serive runs and reports all
                 CraptionUtil.startReportingToServer();
             }
+            setUpNetworkReceiver();
         }
         return instance;
     }
@@ -122,6 +125,18 @@ public class CraptionReporter {
     private static void setUpExceptionHandler() {
         if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CraptionReporterExceptionHandler)) {
             Thread.setDefaultUncaughtExceptionHandler(new CraptionReporterExceptionHandler());
+        }
+    }
+
+    private static void setUpNetworkReceiver() {
+        try {
+            new NetworkStateReceiver(applicationContext, state -> {
+                if (state == NetworkStateReceiver.State.CONNECTED) {
+                    new Reporter().report();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

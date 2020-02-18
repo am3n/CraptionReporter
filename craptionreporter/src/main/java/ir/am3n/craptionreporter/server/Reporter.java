@@ -8,6 +8,7 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -44,6 +45,8 @@ public class Reporter {
     public void report() {
         try {
 
+            Log.d("Meeeeeee", "Reporter > start()");
+
             // barrasi inke chekar koanm.. static ro bardarm ya ...
             if (!CraptionReporter.getInstance().hasRetraceMappingFile() && CraptionReporter.getInstance().getRetraceOn()==RetraceOn.DEVICE) {
                 downloadRetraceMappingFile();
@@ -70,12 +73,15 @@ public class Reporter {
 
         new Thread(() -> {
 
+            Log.d("Meeeeeee", "Reporter > start() > startReport()");
+
             try {
 
                 //Log.d("Meeeeeee", "startReport() > Thread() > start()");
 
                 if (!crashDirIsEmpty() || !exceptionDirIsEmpty()) {
                     //Log.d("Meeeeeee", "startReport() > Thread() > 0");
+                    Log.d("Meeeeeee", "Reporter > start() > startReport() > there is crash or excp.. sending...");
 
                     JSONObject crashesPack = getCrashExceptionsPack(CraptionReporter.getInstance().getUserIdentification());
 
@@ -90,6 +96,7 @@ public class Reporter {
                                     e.printStackTrace();
                                 }
                             }
+                            Log.d("Meeeeeee", "Reporter > start() > startReport() > sent");
                             //doing = false;
                             //stopSelf();
                             //intent.putExtra("doing", false);

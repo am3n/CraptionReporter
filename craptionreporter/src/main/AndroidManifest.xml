@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ir.am3n.craptionreporter">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application>
 
         <provider
@@ -20,7 +23,8 @@
             android:parentActivityName=".ui.CraptionReporterActivity"
             android:theme="@style/CraptionReporter.Theme" />
 
-        <service android:name=".server.ServerHandlerService" />
+        <service
+            android:name=".server.ServerHandlerService" />
 
     </application>
 
