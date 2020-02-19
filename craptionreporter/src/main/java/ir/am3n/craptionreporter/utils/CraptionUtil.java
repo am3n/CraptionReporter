@@ -43,12 +43,10 @@ public class CraptionUtil {
     }
 
     static void crash(Throwable throwable) {
-        new Thread(() -> {
-            String crashReportPath = CraptionReporter.getInstance().getCrashReportPath();
-            String filename = getCrashLogTime() + Constants.CRASH_SUFFIX + Constants.FILE_EXTENSION;
-            writeReportToFile(crashReportPath, filename, getStackTrace(throwable, null));
-            showNotification(throwable.getLocalizedMessage(), true);
-        }).start();
+        String crashReportPath = CraptionReporter.getInstance().getCrashReportPath();
+        String filename = getCrashLogTime() + Constants.CRASH_SUFFIX + Constants.FILE_EXTENSION;
+        writeReportToFile(crashReportPath, filename, getStackTrace(throwable, null));
+        showNotification(throwable.getLocalizedMessage(), true);
     }
 
     public static void exception(Throwable exception) {

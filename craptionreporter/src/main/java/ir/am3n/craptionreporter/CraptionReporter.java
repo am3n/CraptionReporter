@@ -132,8 +132,8 @@ public class CraptionReporter {
     private static void setUpNetworkReceiver() {
         try {
             new NetworkStateReceiver(applicationContext, state -> {
-                if (state == NetworkStateReceiver.State.CONNECTED) {
-                    Log.d("Meeeeee", "CraptionReporter > setUpNetworkReceiver() > receiver() > connected");
+                Log.d("Me-CraptionReporter", "NetworkReceiver() > "+state.name());
+                if (state == NetworkStateReceiver.State.AVAILABLE) {
                     new Reporter().report();
                 }
             });

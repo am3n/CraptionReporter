@@ -1,5 +1,7 @@
 package ir.am3n.craptionreporter.utils;
 
+import androidx.annotation.NonNull;
+
 public class CraptionReporterExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     private Thread.UncaughtExceptionHandler exceptionHandler;
@@ -9,7 +11,7 @@ public class CraptionReporterExceptionHandler implements Thread.UncaughtExceptio
     }
 
     @Override
-    public void uncaughtException(Thread thread, Throwable throwable) {
+    public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
 
         //Log.d("Meeeeeee", "CraptionReporterExceptionHandler() > uncaughtException()");
 
@@ -18,5 +20,7 @@ public class CraptionReporterExceptionHandler implements Thread.UncaughtExceptio
         CraptionUtil.startReportingToServer();
 
         exceptionHandler.uncaughtException(thread, throwable);
+
     }
+
 }
