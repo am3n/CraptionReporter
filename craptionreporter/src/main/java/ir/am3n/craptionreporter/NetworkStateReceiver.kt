@@ -18,7 +18,7 @@ class NetworkStateReceiver(
 
     private var state = State.DISCONNECTED
 
-    private val connectionState: NetworkInfo.State get() =
+    val networkState: NetworkInfo.State get() =
         if (networkInfo != null) {
             networkInfo!!.state
         } else
@@ -32,6 +32,7 @@ class NetworkStateReceiver(
     init {
         networkIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
         context?.registerReceiver(this, networkIntentFilter)
+        onReceive(context, null)
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -49,6 +50,7 @@ class NetworkStateReceiver(
                 connectivityListener.onConnectionStateChanged(state)
             }
         }
+
     }
 
     fun onRestart() {
