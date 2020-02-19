@@ -1,9 +1,12 @@
 package ir.am3n.craptionreporter.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +33,11 @@ public class MainActivity extends AppCompatActivity {
         CraptionReporter.log("main 3");*/
 
         //new Handler().postDelayed(CraptionReporter::crash, 3000);
+
+        findViewById(R.id.txt).setOnLongClickListener(v -> {
+            CraptionReporter.crash();
+            return true;
+        });
 
     }
 

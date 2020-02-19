@@ -124,7 +124,7 @@ class NetworkStateReceiver(
 
     fun onRestart() {
         try {
-            onStop()
+            try { onStop() } catch (t: Throwable) { t.printStackTrace() }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 connectivityManager?.registerNetworkCallback(NetworkRequest.Builder().build(), networkCallback)
             } else {
