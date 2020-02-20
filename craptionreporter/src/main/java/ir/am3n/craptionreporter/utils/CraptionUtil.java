@@ -252,8 +252,10 @@ public class CraptionUtil {
     }
 
     private static String getDefaultCraptionReporterPath() {
-        File storage = CraptionReporter.getInstance().getContext().getExternalFilesDir(null);
-        if (storage==null)
+        File storage = CraptionReporter.getInstance().getContext().getFilesDir();
+        if (storage == null)
+            storage = CraptionReporter.getInstance().getContext().getExternalFilesDir(null);
+        if (storage == null)
             storage = Environment.getExternalStorageDirectory();
 
         String defaultPath = storage.getAbsolutePath() + File.separator + Constants.MAIN_DIR;
