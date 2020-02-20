@@ -47,7 +47,7 @@ class NetworkStateReceiver(
 
         connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
 
-        onRestart()
+        start()
 
     }
 
@@ -121,10 +121,8 @@ class NetworkStateReceiver(
 
     }
 
-
-    fun onRestart() {
+    private fun start() {
         try {
-            try { onStop() } catch (t: Throwable) { t.printStackTrace() }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 connectivityManager?.registerNetworkCallback(NetworkRequest.Builder().build(), networkCallback)
             } else {
@@ -133,10 +131,9 @@ class NetworkStateReceiver(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
-    fun onStop() {
+    fun stop() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 connectivityManager?.unregisterNetworkCallback(networkCallback)
@@ -146,6 +143,11 @@ class NetworkStateReceiver(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun restart() {
+        stop()
+        start()
     }
 
 }
