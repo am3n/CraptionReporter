@@ -4,11 +4,13 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Network;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -131,8 +133,10 @@ public class CraptionReporter {
 
     private static void setUpNetworkReceiver() {
         try {
-            new NetworkStateReceiver(applicationContext, state -> {
-                Log.d("Me-CraptionReporter", "NetworkReceiver() > "+state.name());
+            new NetworkStateReceiver(applicationContext, null, (state, network) -> {
+                Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
+                if (network!=null)
+                    Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
                 if (state == NetworkStateReceiver.State.AVAILABLE) {
                     new Reporter().report();
                 }

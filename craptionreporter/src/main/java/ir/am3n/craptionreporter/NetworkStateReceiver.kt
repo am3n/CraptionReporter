@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 
 class NetworkStateReceiver(
     private var context: Context?,
+    private var transportTypes: Array<Int>? = null,
     val listener: Listener?
 ) : BroadcastReceiver() {
 
@@ -24,7 +25,7 @@ class NetworkStateReceiver(
     }
 
     interface Listener {
-        fun onChanged(state: State)
+        fun onChanged(state: State, network: Network? = null)
     }
 
 
@@ -51,14 +52,44 @@ class NetworkStateReceiver(
 
     }
 
-
+    private val allTransportTypes @RequiresApi(Build.VERSION_CODES.LOLLIPOP) get() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                arrayOf(
+                        NetworkCapabilities.TRANSPORT_BLUETOOTH,
+                        NetworkCapabilities.TRANSPORT_CELLULAR,
+                        NetworkCapabilities.TRANSPORT_ETHERNET,
+                        NetworkCapabilities.TRANSPORT_LOWPAN,
+                        NetworkCapabilities.TRANSPORT_VPN,
+                        NetworkCapabilities.TRANSPORT_WIFI,
+                        NetworkCapabilities.TRANSPORT_WIFI_AWARE
+                )
+            } else {
+                arrayOf(
+                        NetworkCapabilities.TRANSPORT_BLUETOOTH,
+                        NetworkCapabilities.TRANSPORT_CELLULAR,
+                        NetworkCapabilities.TRANSPORT_ETHERNET,
+                        NetworkCapabilities.TRANSPORT_VPN,
+                        NetworkCapabilities.TRANSPORT_WIFI,
+                        NetworkCapabilities.TRANSPORT_WIFI_AWARE
+                )
+            }
+        } else {
+            arrayOf(
+                    NetworkCapabilities.TRANSPORT_BLUETOOTH,
+                    NetworkCapabilities.TRANSPORT_CELLULAR,
+                    NetworkCapabilities.TRANSPORT_ETHERNET,
+                    NetworkCapabilities.TRANSPORT_VPN,
+                    NetworkCapabilities.TRANSPORT_WIFI
+            )
+        }
     private val networkCallback get() = @RequiresApi(Build.VERSION_CODES.LOLLIPOP) object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             Log.d("Me-NetStateReceiver", "onAvailable()")
             if (state != State.AVAILABLE) {
                 state = State.AVAILABLE
-                listener?.onChanged(state)
+                listener?.onChanged(state, network)
                 handler?.removeCallbacks(runnable)
             }
         }
@@ -92,7 +123,7 @@ class NetworkStateReceiver(
             Log.d("Me-NetStateReceiver", "onLost()")
             if (state != State.LOST) {
                 state = State.LOST
-                listener?.onChanged(state)
+                listener?.onChanged(state, network)
                 handler?.removeCallbacks(runnable)
             }
         }
@@ -124,7 +155,14 @@ class NetworkStateReceiver(
     private fun start() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                connectivityManager?.registerNetworkCallback(NetworkRequest.Builder().build(), networkCallback)
+
+                val builder = NetworkRequest.Builder()
+                if (transportTypes != null) {
+                    allTransportTypes.forEach { builder.removeTransportType(it) }
+                    transportTypes!!.forEach { builder.addTransportType(it) }
+                }
+                connectivityManager?.registerNetworkCallback(builder.build(), networkCallback)
+
             } else {
                 context?.registerReceiver(this, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
             }
