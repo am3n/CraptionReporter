@@ -43,6 +43,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "androidx.core:core-ktx:1.2.0"
 
+    //noinspection GradleDependency
+    implementation 'com.google.android.gms:play-services-base:6.5.87'
+
     implementation 'com.jaredrummler:android-device-names:1.1.9'
 
     testImplementation 'junit:junit:4.13'

@@ -2,6 +2,7 @@ package ir.am3n.craptionreporter.server;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
@@ -12,6 +13,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import androidx.core.content.pm.PackageInfoCompat;
+
 import com.jaredrummler.android.device.DeviceName;
 
 import org.json.JSONArray;
@@ -21,10 +24,13 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.Locale;
 
+import ir.am3n.craptionreporter.BuildConfig;
 import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.PermissionRequest;
 import ir.am3n.craptionreporter.RetraceOn;
 import ir.am3n.craptionreporter.utils.FileUtils;
+
+import static com.google.android.gms.common.GooglePlayServicesUtil.GOOGLE_PLAY_SERVICES_PACKAGE;
 
 public class Reporter {
 
@@ -179,6 +185,17 @@ public class Reporter {
             try {
 
                 Context context = CraptionReporter.getInstance().getContext();
+
+                String psVersion = "";
+                try {
+                    psVersion = context.getPackageManager().getPackageInfo(GOOGLE_PLAY_SERVICES_PACKAGE, 0).versionName;
+                    if (psVersion.contains(" "))
+                        psVersion = psVersion.split(" ")[0];
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+                result.put("ps_version", psVersion);
+                Log.d("Me-Reporter", "play services version: "+psVersion);
 
                 String device_imei = "";
                 try {
