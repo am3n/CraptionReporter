@@ -24,13 +24,10 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.Locale;
 
-import ir.am3n.craptionreporter.BuildConfig;
 import ir.am3n.craptionreporter.CraptionReporter;
 import ir.am3n.craptionreporter.PermissionRequest;
 import ir.am3n.craptionreporter.RetraceOn;
 import ir.am3n.craptionreporter.utils.FileUtils;
-
-import static com.google.android.gms.common.GooglePlayServicesUtil.GOOGLE_PLAY_SERVICES_PACKAGE;
 
 public class Reporter {
 

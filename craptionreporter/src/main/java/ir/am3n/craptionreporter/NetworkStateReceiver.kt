@@ -26,6 +26,7 @@ class NetworkStateReceiver(
 
     interface Listener {
         fun onChanged(state: State, network: Network? = null)
+        fun onChangedOnLowApi(state: State)
     }
 
 
@@ -139,12 +140,20 @@ class NetworkStateReceiver(
             networkInfo = it.activeNetworkInfo
             if (networkInfo != null && networkInfo!!.isConnected) {
                 state = State.AVAILABLE
-                listener?.onChanged(state)
+                try {
+                    listener?.onChanged(state)
+                } catch (t: Throwable) {
+                    listener?.onChangedOnLowApi(state)
+                }
                 handler?.removeCallbacks(runnable)
 
             } else if (networkInfo == null || intent?.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) == true) {
                 state = State.LOST
-                listener?.onChanged(state)
+                try {
+                    listener?.onChanged(state)
+                } catch (t: Throwable) {
+                    listener?.onChangedOnLowApi(state)
+                }
                 handler?.removeCallbacks(runnable)
             }
             return@let

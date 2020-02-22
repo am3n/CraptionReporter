@@ -133,12 +133,22 @@ public class CraptionReporter {
 
     private static void setUpNetworkReceiver() {
         try {
-            new NetworkStateReceiver(applicationContext, null, (state, network) -> {
-                Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
-                if (network!=null)
-                    Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
-                if (state == NetworkStateReceiver.State.AVAILABLE) {
-                    new Reporter().report();
+            new NetworkStateReceiver(applicationContext, null, new NetworkStateReceiver.Listener() {
+                @Override
+                public void onChanged(@NotNull NetworkStateReceiver.State state, @Nullable Network network) {
+                    Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
+                    if (network!=null)
+                        Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
+                    if (state == NetworkStateReceiver.State.AVAILABLE) {
+                        new Reporter().report();
+                    }
+                }
+                @Override
+                public void onChangedOnLowApi(@NotNull NetworkStateReceiver.State state) {
+                    Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
+                    if (state == NetworkStateReceiver.State.AVAILABLE) {
+                        new Reporter().report();
+                    }
                 }
             });
         } catch (Exception e) {
