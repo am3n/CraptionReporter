@@ -25,6 +25,8 @@ import ir.am3n.craptionreporter.utils.CraptionReporterExceptionHandler;
 import ir.am3n.craptionreporter.utils.CraptionUtil;
 import ir.am3n.craptionreporter.utils.CraptionReporterNotInitializedException;
 
+import static java.lang.Thread.sleep;
+
 public class CraptionReporter {
 
     private static CraptionReporter instance;
@@ -39,6 +41,9 @@ public class CraptionReporter {
     private static int logSize = 500; // killobyetes
 
     private static boolean isNotificationEnabled = true;
+
+    private static Thread reporterThread;
+    private static boolean reporterThreadStoped = true;
 
     private static String serverHost = "";
     private static Map<String, String> serverHeaders;
@@ -91,21 +96,27 @@ public class CraptionReporter {
     public CraptionReporter build() {
         //Log.d("Meeeeeee", "CraptionReporter() > build()");
         setUpExceptionHandler();
+
         if (isServerReportEnabled) {
             //Log.d("Meeeeeee", "CraptionReporter() > build() > report()");
-            new Reporter()
-                    .listener(() -> {
-                        if (ServerHandlerService.handler!=null) {
-                            Message message = new Message();
-                            message.what = 0;
-                            ServerHandlerService.handler.sendMessage(message);
-                        }
-                    }).report();
+
+            new Reporter().listener(() -> {
+                if (ServerHandlerService.handler!=null) {
+                    Message message = new Message();
+                    message.what = 0;
+                    ServerHandlerService.handler.sendMessage(message);
+                }
+            }).report();
+
             if (!isServiceRunning(getContext(), ServerHandlerService.class)) {
                 // start a service restart when app ended, serive runs and reports all
                 CraptionUtil.startReportingToServer();
             }
+
             setUpNetworkReceiver();
+
+            setUpReporterThread();
+
         }
         return instance;
     }
@@ -153,6 +164,52 @@ public class CraptionReporter {
             });
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    synchronized private static void setUpReporterThread() {
+        try {
+            if (isServerReportEnabled) {
+                if (reporterThread == null) {
+                    reporterThread = new Thread(() -> {
+                        while (true) {
+
+                            reporterThreadStoped = false;
+                            long ts = System.currentTimeMillis();
+                            new Reporter().listener(() -> {
+
+                                if (System.currentTimeMillis() - ts < 3*1000)
+                                    try { sleep(3*1000); } catch (Throwable ignore) {}
+
+                                long ts2 = System.currentTimeMillis();
+                                new Reporter().listener(() -> {
+
+                                    if (System.currentTimeMillis() - ts2 < 3*1000)
+                                        try { sleep(3*1000); } catch (Throwable ignore) {}
+
+                                    new Reporter().listener(() -> reporterThreadStoped = true).report();
+
+                                }).report();
+
+                            }).report();
+
+                            try { sleep(60*1000); } catch (Throwable ignore) {}
+                        }
+                    });
+                    reporterThread.start();
+                } else {
+                    if (reporterThreadStoped)
+                        reporterThread.interrupt();
+                    else {
+                        // just wait
+                    }
+                }
+            } else {
+                if (reporterThread!=null)
+                    reporterThread.stop();
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 
@@ -267,10 +324,11 @@ public class CraptionReporter {
         throw new RuntimeException("Craption Reporter Crash");
     }
     public static void exception(Exception exception) {
-        CraptionUtil.exception(exception);
+        exception(exception, null);
     }
     public static void exception(Throwable exception, String eventLocation) {
         CraptionUtil.exception(exception, eventLocation);
+        setUpReporterThread();
     }
     public static void log(String log) {
         CraptionUtil.log(log);

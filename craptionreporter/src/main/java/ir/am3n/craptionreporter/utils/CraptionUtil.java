@@ -52,9 +52,6 @@ public class CraptionUtil {
         showNotification(throwable.getLocalizedMessage(), true);
     }
 
-    public static void exception(Throwable exception) {
-        exception(exception, null);
-    }
     synchronized public static void exception(Throwable exception, String eventLocation) {
         new Thread(() -> {
             Log.d("CraptionReporter", "exception() > el: "+eventLocation);

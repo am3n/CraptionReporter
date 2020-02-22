@@ -6,11 +6,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.am3n'
 
 /**
- 16  ->  1.5.9
- 17  ->  1.6
- 18  ->  1.6.1
- 19  ->  1.6.2
- 20  ->  1.6.3
+ 21  ->  1.6.4
 */
 
 android {
@@ -18,8 +14,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 20
-        versionName "1.6.3"
+        versionCode 21
+        versionName "1.6.4"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

@@ -35,7 +35,11 @@ public class MainActivity extends AppCompatActivity {
         //new Handler().postDelayed(CraptionReporter::crash, 3000);
 
         findViewById(R.id.txt).setOnLongClickListener(v -> {
-            CraptionReporter.crash();
+
+            CraptionReporter.exception(new Exception(""), "MainAct > txt.longClick()");
+
+            //CraptionReporter.crash();
+
             return true;
         });
 
