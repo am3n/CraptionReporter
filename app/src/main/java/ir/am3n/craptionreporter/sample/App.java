@@ -19,7 +19,11 @@ public class App extends Application {
             .build();
 
         CraptionReporter.getInstance().setUserIdentification("useId");
+
         //CraptionReporter.getInstance().disableNotification();
+
+        // this param on server database is 'varchar(4096)' by default
+        CraptionReporter.getInstance().setExtraInfo("[{ .. json or raw data :-) }]");
 
     }
 }

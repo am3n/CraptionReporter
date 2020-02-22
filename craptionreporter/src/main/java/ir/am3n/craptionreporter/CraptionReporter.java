@@ -48,7 +48,7 @@ public class CraptionReporter {
     private static boolean retraceVerbose = true;
 
     private static String userIdentification;
-
+    private static String extraInfo;
 
     public static CraptionReporter with(Context context) {
         applicationContext = context;
@@ -242,6 +242,21 @@ public class CraptionReporter {
         }
         return userIdentification;
     }
+
+
+    public void setExtraInfo(String extra) {
+        extraInfo = extra;
+        SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
+        sh.edit().putString("extra_info", extraInfo).apply();
+    }
+    public String getExtraInfo() {
+        if (TextUtils.isEmpty(extraInfo)) {
+            SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
+            return sh.getString("extra_info", "");
+        }
+        return extraInfo;
+    }
+
 
     public Intent getLaunchIntent() {
         return new Intent(applicationContext, CraptionReporterActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

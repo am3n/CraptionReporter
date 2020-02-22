@@ -93,7 +93,7 @@ public class Reporter {
                     //Log.d("Meeeeeee", "startReport() > Thread() > 0");
                     Log.d("Meeeeeee", "Reporter > start() > startReport() > there is crash or excp.. sending...");
 
-                    JSONObject crashesPack = getCrashExceptionsPack(CraptionReporter.getInstance().getUserIdentification());
+                    JSONObject crashesPack = getCrashExceptionsPack();
 
                     UploadCrashesAsyncTask task = new UploadCrashesAsyncTask(crashesPack, new UploadCrashesAsyncTask.Listener() {
                         @Override
@@ -165,7 +165,7 @@ public class Reporter {
         return true;
     }
 
-    public static JSONObject getCrashExceptionsPack(String user_identification) {
+    public static JSONObject getCrashExceptionsPack() {
 
         JSONArray crashes = getCrashes();
 
@@ -175,24 +175,39 @@ public class Reporter {
         try {
             result.put("crashes", crashes);
             result.put("exceptions", exceptions);
-            result.put("user_identification", user_identification);
-            result.put("app_version_code", CraptionReporter.getInstance().getAppVersionCode());
+
+            try {
+                result.put("user_identification", CraptionReporter.getInstance().getUserIdentification());
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+            try {
+                result.put("extra_info", CraptionReporter.getInstance().getExtraInfo());
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+            try {
+                result.put("app_version_code", CraptionReporter.getInstance().getAppVersionCode());
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
             result.put("os_version", Build.VERSION.SDK_INT+" ("+Build.VERSION.RELEASE+")");
+
+            try {
+                String psVersion;
+                psVersion = CraptionReporter.getInstance().getContext().getPackageManager().getPackageInfo("com.google.android.gms", 0).versionName;
+                if (psVersion.contains(" ")) psVersion = psVersion.split(" ")[0];
+                result.put("ps_version", psVersion);
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
 
             try {
 
                 Context context = CraptionReporter.getInstance().getContext();
-
-                String psVersion = "";
-                try {
-                    psVersion = context.getPackageManager().getPackageInfo("com.google.android.gms", 0).versionName;
-                    if (psVersion.contains(" "))
-                        psVersion = psVersion.split(" ")[0];
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-                result.put("ps_version", psVersion);
-                Log.d("Me-Reporter", "play services version: "+psVersion);
 
                 String device_imei = "";
                 try {
