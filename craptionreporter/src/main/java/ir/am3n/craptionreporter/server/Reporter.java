@@ -188,7 +188,7 @@ public class Reporter {
 
                 String psVersion = "";
                 try {
-                    psVersion = context.getPackageManager().getPackageInfo(GOOGLE_PLAY_SERVICES_PACKAGE, 0).versionName;
+                    psVersion = context.getPackageManager().getPackageInfo("com.google.android.gms", 0).versionName;
                     if (psVersion.contains(" "))
                         psVersion = psVersion.split(" ")[0];
                 } catch (Throwable t) {

@@ -8,6 +8,7 @@ group = 'com.github.am3n'
 /**
  16  ->  1.5.9
  17  ->  1.6
+ 18  ->  1.6.1
 */
 
 android {
@@ -15,8 +16,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 17
-        versionName "1.6"
+        versionCode 18
+        versionName "1.6.1"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -43,9 +44,6 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "androidx.core:core-ktx:1.2.0"
-
-    //noinspection GradleDependency
-    implementation 'com.google.android.gms:play-services-base:6.5.87'
 
     implementation 'com.jaredrummler:android-device-names:1.1.9'
 
