@@ -8,7 +8,6 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
-import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -165,16 +164,16 @@ public class CraptionUtil {
         if (CraptionReporter.getInstance().isServerReportEnabled()) {
             //Log.d("Meeeeeee", "CraptionUtil() > startReportingToServer() > ServerReportEnabled");
             Context context = CraptionReporter.getInstance().getContext();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 AlarmManager alarmMgr = (AlarmManager) context.getSystemService(ALARM_SERVICE);
                 if (alarmMgr == null) return;
                 Intent i = new Intent(context, ServerHandlerService.class);
                 PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
                 alarmMgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10, pendingIntent);
-            } else  {
+            /*} else  {
                 Intent intent = new Intent(context, ServerHandlerService.class);
                 context.startService(intent);
-            }
+            }*/
         }
     }
 

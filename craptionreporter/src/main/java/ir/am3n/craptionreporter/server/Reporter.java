@@ -94,6 +94,7 @@ public class Reporter {
                     Log.d("Meeeeeee", "Reporter > start() > startReport() > there is crash or excp.. sending...");
 
                     JSONObject crashesPack = getCrashExceptionsPack();
+                    Log.d("Me-Reporter", crashesPack.toString());
 
                     UploadCrashesAsyncTask task = new UploadCrashesAsyncTask(crashesPack, new UploadCrashesAsyncTask.Listener() {
                         @Override
@@ -189,7 +190,7 @@ public class Reporter {
             }
 
             try {
-                result.put("app_version_code", CraptionReporter.getInstance().getAppVersionCode());
+                result.put("app_version", CraptionReporter.getInstance().getAppVersion());
             } catch (Throwable t) {
                 t.printStackTrace();
             }

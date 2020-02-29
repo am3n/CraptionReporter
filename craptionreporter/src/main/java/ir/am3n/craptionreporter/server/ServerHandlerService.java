@@ -9,6 +9,8 @@ import android.os.Message;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ServerHandlerService extends Service {
 
     static public Handler handler;
@@ -24,14 +26,14 @@ public class ServerHandlerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("Meeeeeee", "ServerHandlerService() > onCreate()");
+        Log.d("Me", "ServerHandlerService() > onCreate()");
         if (handler == null) {
             handler = new Handler() {
                 @Override
-                public void handleMessage(Message msg) {
+                public void handleMessage(@NotNull Message msg) {
                     super.handleMessage(msg);
                     if (msg.what == 0) {
-                        Log.d("Meeeeeee", "ServerHandlerService() > stopSelf()");
+                        Log.d("Me", "ServerHandlerService() > stopSelf()");
                         stopSelf();
                         System.exit(0);
                     }

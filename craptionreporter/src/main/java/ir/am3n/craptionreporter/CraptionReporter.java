@@ -4,7 +4,10 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Network;
+import android.os.Build;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import ir.am3n.craptionreporter.server.Reporter;
 import ir.am3n.craptionreporter.server.ServerHandlerService;
@@ -47,7 +49,8 @@ public class CraptionReporter {
 
     private static String serverHost = "";
     private static Map<String, String> serverHeaders;
-    private static Integer appVersionCode;
+    private static String appVersionName;
+    private static long appVersionCode;
     private static boolean isServerReportEnabled = false;
     private static RetraceOn retraceOn = RetraceOn.NONE;
     private static boolean retraceVerbose = true;
@@ -71,21 +74,16 @@ public class CraptionReporter {
         isNotificationEnabled = false;
         return instance;
     }
-    public CraptionReporter appVersionCode(int versionCode) {
-        appVersionCode = versionCode;
-        return instance;
-    }
     public CraptionReporter setLogSize(int size) {
         logSize = size;
         return this;
     }
-    public CraptionReporter enableServer(String host, int versionCode, RetraceOn retrace) {
-        return enableServer(host, null, versionCode, retrace);
+    public CraptionReporter enableServer(String host, RetraceOn retrace) {
+        return enableServer(host, null, retrace);
     }
-    public CraptionReporter enableServer(String host, Map<String, String> headers, int versionCode, RetraceOn retrace) {
+    public CraptionReporter enableServer(String host, Map<String, String> headers, RetraceOn retrace) {
         serverHost = host;
         serverHeaders = headers;
-        appVersionCode = versionCode;
         isServerReportEnabled = true;
 
         retraceOn = retrace;
@@ -95,23 +93,32 @@ public class CraptionReporter {
     }
     public CraptionReporter build() {
         //Log.d("Meeeeeee", "CraptionReporter() > build()");
+
+        try {
+            PackageInfo pInfo = applicationContext.getPackageManager().getPackageInfo(applicationContext.getPackageName(), 0);
+            appVersionName = pInfo.versionName;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                appVersionCode = pInfo.getLongVersionCode();
+            else
+                appVersionCode = pInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
         setUpExceptionHandler();
 
         if (isServerReportEnabled) {
             //Log.d("Meeeeeee", "CraptionReporter() > build() > report()");
 
             new Reporter().listener(() -> {
+                Log.d("Meeee", "send message to ServerHandlerService");
                 if (ServerHandlerService.handler != null) {
                     Message message = new Message();
                     message.what = 0;
                     ServerHandlerService.handler.sendMessage(message);
+                    Log.d("Meeee", "sent message to ServerHandlerService");
                 }
             }).report();
-
-            if (!isServiceRunning(getContext(), ServerHandlerService.class)) {
-                // start a service restart when app ended, serive runs and reports all
-                CraptionUtil.startReportingToServer();
-            }
 
             setUpNetworkReceiver();
 
@@ -121,9 +128,9 @@ public class CraptionReporter {
         return instance;
     }
 
-    private static boolean isServiceRunning(Context context, Class<?> serviceClass) {
+    private static boolean isServiceRunning(Context context) {
         try {
-            String className = serviceClass.getName();
+            String className = ServerHandlerService.class.getName();
             if (context!=null && context.getSystemService(Context.ACTIVITY_SERVICE) != null) {
                 List<ActivityManager.RunningServiceInfo> list =
                         ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE);
@@ -280,8 +287,8 @@ public class CraptionReporter {
     public Map<String, String> getServerHeaders() {
         return serverHeaders;
     }
-    public int getAppVersionCode() {
-        return appVersionCode;
+    public String getAppVersion() {
+        return appVersionCode+" ("+appVersionName+")";
     }
     public String getMappingFileUrl() {
         return Constants.SERVER_MAPPINGS_FILES_DIR+"mapping-"+appVersionCode+".txt";

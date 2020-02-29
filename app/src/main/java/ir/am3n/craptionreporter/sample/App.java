@@ -15,7 +15,7 @@ public class App extends Application {
 
         CraptionReporter.with(this)
             .setLogSize(64)
-            .enableServer("http://example.com/", BuildConfig.VERSION_CODE, RetraceOn.SERVER)
+            .enableServer("http://example.com/", RetraceOn.SERVER)
             .build();
 
         CraptionReporter.getInstance().setUserIdentification("useId");
