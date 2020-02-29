@@ -25,15 +25,7 @@ public class ServerHandlerService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d("Meeeeeee", "ServerHandlerService() > onCreate()");
-        /*new Reporter()
-                .listener(new Reporter.Listener() {
-                    @Override
-                    public void onStop() {
-                        stopSelf();
-                    }
-                })
-                .report();*/
-        if (handler==null) {
+        if (handler == null) {
             handler = new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
@@ -41,6 +33,7 @@ public class ServerHandlerService extends Service {
                     if (msg.what == 0) {
                         Log.d("Meeeeeee", "ServerHandlerService() > stopSelf()");
                         stopSelf();
+                        System.exit(0);
                     }
                 }
             };

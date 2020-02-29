@@ -101,7 +101,7 @@ public class CraptionReporter {
             //Log.d("Meeeeeee", "CraptionReporter() > build() > report()");
 
             new Reporter().listener(() -> {
-                if (ServerHandlerService.handler!=null) {
+                if (ServerHandlerService.handler != null) {
                     Message message = new Message();
                     message.what = 0;
                     ServerHandlerService.handler.sendMessage(message);
@@ -122,16 +122,20 @@ public class CraptionReporter {
     }
 
     private static boolean isServiceRunning(Context context, Class<?> serviceClass) {
-        String className = serviceClass.getName();
-        if (context!=null && context.getSystemService(Context.ACTIVITY_SERVICE) != null) {
-            List<ActivityManager.RunningServiceInfo> list =
-                ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE);
-            if (list != null) {
-                for (ActivityManager.RunningServiceInfo serviceInfo : list) {
-                    if (className.equals(serviceInfo.service.getClassName()))
-                        return true;
+        try {
+            String className = serviceClass.getName();
+            if (context!=null && context.getSystemService(Context.ACTIVITY_SERVICE) != null) {
+                List<ActivityManager.RunningServiceInfo> list =
+                        ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE);
+                if (list != null) {
+                    for (ActivityManager.RunningServiceInfo serviceInfo : list) {
+                        if (className.equals(serviceInfo.service.getClassName()))
+                            return true;
+                    }
                 }
             }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
         return false;
     }

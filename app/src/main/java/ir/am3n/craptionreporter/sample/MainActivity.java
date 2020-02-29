@@ -7,6 +7,8 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,12 +36,12 @@ public class MainActivity extends AppCompatActivity {
 
         //new Handler().postDelayed(CraptionReporter::crash, 3000);
 
-        findViewById(R.id.txt).setOnLongClickListener(v -> {
-
+        TextView txt = findViewById(R.id.txt);
+        txt.setOnClickListener(v ->
+                CraptionReporter.crash()
+        );
+        txt.setOnLongClickListener(v -> {
             CraptionReporter.exception(new Exception(""), "MainAct > txt.longClick()");
-
-            //CraptionReporter.crash();
-
             return true;
         });
 
