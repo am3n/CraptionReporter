@@ -1,6 +1,6 @@
 # CraptionReporter
 [![](https://jitpack.io/v/am3n/CraptionReporter.svg)](https://jitpack.io/#am3n/CraptionReporter)
-[![API](https://img.shields.io/badge/API-16%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=16)
+[![API](https://img.shields.io/badge/API-16%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=15)
 
 CraptionReporter is a crash, exception and log reporter tool for android
 
