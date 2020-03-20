@@ -66,8 +66,10 @@ public class Reporter {
         } catch (Exception e) {
             reporting = false;
             e.printStackTrace();
-            if (listener!=null)
-                listener.onStop();
+            new Thread(() -> {
+                if (listener!=null)
+                    listener.onStop();
+            }).start();
         }
     }
 
@@ -113,8 +115,10 @@ public class Reporter {
                             //stopSelf();
                             //intent.putExtra("doing", false);
 
-                            if (listener!=null)
-                                listener.onStop();
+                            new Thread(() -> {
+                                if (listener!=null)
+                                    listener.onStop();
+                            }).start();
                         }
                         @Override
                         public void onError() {
@@ -123,11 +127,13 @@ public class Reporter {
                             //stopSelf();
                             //intent.putExtra("doing", false);
                             reporting = false;
-                            if (listener!=null)
-                                listener.onStop();
+                            new Thread(() -> {
+                                if (listener!=null)
+                                    listener.onStop();
+                            }).start();
                         }
                     });
-                    task.execute();
+                    task.start();
 
                     //return;
 

@@ -32,7 +32,8 @@ class NetworkStateReceiver(
 
     private var connectivityManager: ConnectivityManager? = null
     private var networkInfo: NetworkInfo? = null
-    private var state = State.LOST
+    var state = State.LOST
+        private set
 
     private var handler: Handler? = Handler(Looper.getMainLooper())
     private var runnable = Runnable {

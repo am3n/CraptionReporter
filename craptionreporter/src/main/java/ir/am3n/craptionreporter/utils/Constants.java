@@ -22,7 +22,7 @@ public class Constants {
     public static final String LANDING = "landing";
 
 
-    public final static Integer SERVER_TIMEOUTS = 20*1000;
+    public final static Integer SERVER_TIMEOUTS = 5*1000;
     private final static String SERVER_ROOT = CraptionReporter.getInstance().getServerHost()+"craptionreporter/";
     public final static String SERVER_MAPPINGS_FILES_DIR = SERVER_ROOT+"mappings/";
     public final static String SERVER_REPORTER = SERVER_ROOT+"Report.php";

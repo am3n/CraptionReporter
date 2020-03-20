@@ -58,6 +58,8 @@ public class CraptionReporter {
     private static String userIdentification;
     private static String extraInfo;
 
+    private static NetworkStateReceiver.State networkState;
+
     public static CraptionReporter with(Context context) {
         applicationContext = context;
         if (instance==null)
@@ -158,6 +160,7 @@ public class CraptionReporter {
             new NetworkStateReceiver(applicationContext, null, new NetworkStateReceiver.Listener() {
                 @Override
                 public void onChanged(@NotNull NetworkStateReceiver.State state, @Nullable Network network) {
+                    networkState = state;
                     Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
                     if (network!=null)
                         Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
@@ -185,24 +188,42 @@ public class CraptionReporter {
                     reporterThread = new Thread(() -> {
                         while (true) {
 
-                            reporterThreadStoped = false;
-                            long ts = System.currentTimeMillis();
-                            new Reporter().listener(() -> {
+                            if (networkState == NetworkStateReceiver.State.AVAILABLE) {
 
-                                if (System.currentTimeMillis() - ts < 3*1000)
-                                    try { sleep(3*1000); } catch (Throwable ignore) {}
-
-                                long ts2 = System.currentTimeMillis();
+                                reporterThreadStoped = false;
+                                long ts = System.currentTimeMillis();
                                 new Reporter().listener(() -> {
 
-                                    if (System.currentTimeMillis() - ts2 < 3*1000)
-                                        try { sleep(3*1000); } catch (Throwable ignore) {}
+                                    if (networkState != NetworkStateReceiver.State.AVAILABLE)
+                                        return;
 
-                                    new Reporter().listener(() -> reporterThreadStoped = true).report();
+                                    if (System.currentTimeMillis() - ts < 3 * 1000)
+                                        try {
+                                            sleep(3 * 1000);
+                                        } catch (Throwable ignore) {
+                                        }
+
+                                    long ts2 = System.currentTimeMillis();
+                                    new Reporter().listener(() -> {
+
+                                        if (networkState != NetworkStateReceiver.State.AVAILABLE)
+                                            return;
+
+                                        if (System.currentTimeMillis() - ts2 < 3 * 1000)
+                                            try {
+                                                sleep(3 * 1000);
+                                            } catch (Throwable ignore) {
+                                            }
+
+                                        new Reporter().listener(() ->
+                                                reporterThreadStoped = true
+                                        ).report();
+
+                                    }).report();
 
                                 }).report();
 
-                            }).report();
+                            }
 
                             try { sleep(60*1000); } catch (Throwable ignore) {}
                         }

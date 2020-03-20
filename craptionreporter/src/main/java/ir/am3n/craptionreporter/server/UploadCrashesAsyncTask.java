@@ -17,7 +17,7 @@ import java.net.URLConnection;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray> {
+public class UploadCrashesAsyncTask extends Thread {
 
     private JSONObject crashes;
     private Listener listener;
@@ -29,7 +29,8 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
     }
 
     @Override
-    protected JSONArray doInBackground(Object[] objects) {
+    public void run() {
+        super.run();
 
         DataOutputStream outputStream = null;
         BufferedReader bufferedReader = null;
@@ -67,7 +68,8 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
             JSONArray jsonArray = new JSONArray(stringBuilder.toString());
             if (jsonArray.length() > 0) {
                 uploaded = true;
-                return jsonArray;
+                onPostExecute(jsonArray);
+                return;
             }
 
         } catch (Exception e) {
@@ -84,12 +86,10 @@ public class UploadCrashesAsyncTask extends AsyncTask<Object, Integer, JSONArray
         }
 
         uploaded = false;
-        return null;
+
     }
 
-    @Override
-    protected void onPostExecute(JSONArray jsonArray) {
-        super.onPostExecute(jsonArray);
+    private void onPostExecute(JSONArray jsonArray) {
         if (uploaded && jsonArray!=null && listener!=null)
             listener.onUploaded(jsonArray);
         if (!uploaded && listener != null)
