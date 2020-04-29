@@ -20,6 +20,11 @@ dependencies {
 }
 ```
 
+## Proguard
+```
+-keep class ir.am3n.craptionreporter.** { *; }
+```
+
 ## Use
 see sample app
 
