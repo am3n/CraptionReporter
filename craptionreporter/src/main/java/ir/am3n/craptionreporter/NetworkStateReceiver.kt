@@ -27,6 +27,7 @@ class NetworkStateReceiver(
     interface Listener {
         fun onChanged(state: State, network: Network? = null)
         fun onChangedOnLowApi(state: State)
+        fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities)
     }
 
 
@@ -110,6 +111,7 @@ class NetworkStateReceiver(
         }
         override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
             super.onCapabilitiesChanged(network, networkCapabilities)
+            listener?.onCapabilitiesChanged(network, networkCapabilities)
             Log.d("Me-NetStateReceiver", "onCapabilitiesChanged()")
         }
         override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {

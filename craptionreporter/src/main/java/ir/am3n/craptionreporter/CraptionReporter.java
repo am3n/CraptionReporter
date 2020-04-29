@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Message;
 import android.text.TextUtils;
@@ -174,6 +175,10 @@ public class CraptionReporter {
                     if (state == NetworkStateReceiver.State.AVAILABLE) {
                         new Reporter().report();
                     }
+                }
+                @Override
+                public void onCapabilitiesChanged(@NotNull Network network, @NotNull NetworkCapabilities networkCapabilities) {
+
                 }
             });
         } catch (Exception e) {
