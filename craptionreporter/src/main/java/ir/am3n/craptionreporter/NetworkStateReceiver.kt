@@ -89,7 +89,7 @@ class NetworkStateReceiver(
     private val networkCallback get() = @RequiresApi(Build.VERSION_CODES.LOLLIPOP) object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
-            Log.d("Me-NetStateReceiver", "onAvailable()")
+            //Log.d("Me-NetStateReceiver", "onAvailable()")
             if (state != State.AVAILABLE) {
                 state = State.AVAILABLE
                 listener?.onChanged(state, network)
@@ -98,7 +98,7 @@ class NetworkStateReceiver(
         }
         override fun onUnavailable() {
             super.onUnavailable()
-            Log.d("Me-NetStateReceiver", "onUnavailable()")
+            //Log.d("Me-NetStateReceiver", "onUnavailable()")
             if (state != State.UNAVAILABLE) {
                 state = State.UNAVAILABLE
                 listener?.onChanged(state)
@@ -107,24 +107,23 @@ class NetworkStateReceiver(
         }
         override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
             super.onBlockedStatusChanged(network, blocked)
-            Log.d("Me-NetStateReceiver", "onBlockedStatusChanged()")
+            //Log.d("Me-NetStateReceiver", "onBlockedStatusChanged()")
         }
         override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
             super.onCapabilitiesChanged(network, networkCapabilities)
             listener?.onCapabilitiesChanged(network, networkCapabilities)
-            Log.d("Me-NetStateReceiver", "onCapabilitiesChanged()")
         }
         override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
             super.onLinkPropertiesChanged(network, linkProperties)
-            Log.d("Me-NetStateReceiver", "onLinkPropertiesChanged()")
+            //Log.d("Me-NetStateReceiver", "onLinkPropertiesChanged()")
         }
         override fun onLosing(network: Network, maxMsToLive: Int) {
             super.onLosing(network, maxMsToLive)
-            Log.d("Me-NetStateReceiver", "onLosing()")
+            //Log.d("Me-NetStateReceiver", "onLosing()")
         }
         override fun onLost(network: Network) {
             super.onLost(network)
-            Log.d("Me-NetStateReceiver", "onLost()")
+            //Log.d("Me-NetStateReceiver", "onLost()")
             if (state != State.LOST) {
                 state = State.LOST
                 listener?.onChanged(state, network)

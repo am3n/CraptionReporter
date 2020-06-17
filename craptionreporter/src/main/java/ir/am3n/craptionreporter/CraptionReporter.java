@@ -162,16 +162,16 @@ public class CraptionReporter {
                 @Override
                 public void onChanged(@NotNull NetworkStateReceiver.State state, @Nullable Network network) {
                     networkState = state;
-                    Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
+                    //Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
                     if (network!=null)
-                        Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
+                        //Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
                     if (state == NetworkStateReceiver.State.AVAILABLE) {
                         new Reporter().report();
                     }
                 }
                 @Override
                 public void onChangedOnLowApi(@NotNull NetworkStateReceiver.State state) {
-                    Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
+                    //Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
                     if (state == NetworkStateReceiver.State.AVAILABLE) {
                         new Reporter().report();
                     }
