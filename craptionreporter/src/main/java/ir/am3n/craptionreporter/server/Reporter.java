@@ -1,33 +1,18 @@
 package ir.am3n.craptionreporter.server;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.graphics.Point;
-import android.os.Build;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
-
-import androidx.core.content.pm.PackageInfoCompat;
-
-import com.jaredrummler.android.device.DeviceName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.Locale;
 
 import ir.am3n.craptionreporter.CraptionReporter;
-import ir.am3n.craptionreporter.PermissionRequest;
 import ir.am3n.craptionreporter.RetraceOn;
 import ir.am3n.craptionreporter.utils.FileUtils;
+
+import static ir.am3n.needtool.ContextHelperKt.isDebug;
 
 public class Reporter {
 
@@ -91,14 +76,14 @@ public class Reporter {
 
                 //Log.d("Meeeeeee", "startReport() > Thread() > start()");
 
-                if (!crashDirIsEmpty() || !exceptionDirIsEmpty()) {
+                if (!crashDirIsEmpty() || !exceptionDirIsEmpty() || !logDirIsEmpty()) {
                     //Log.d("Meeeeeee", "startReport() > Thread() > 0");
                     Log.d("Meeeeeee", "Reporter > start() > startReport() > there is crash or excp.. sending...");
 
-                    JSONObject crashesPack = getCrashExceptionsPack();
+                    JSONObject crashesPack = getCrashExceptionLogsPack();
                     Log.d("Me-Reporter", crashesPack.toString());
 
-                    UploadCrashesAsyncTask task = new UploadCrashesAsyncTask(crashesPack, new UploadCrashesAsyncTask.Listener() {
+                    ReportThread task = new ReportThread(crashesPack, new ReportThread.Listener() {
                         @Override
                         public void onUploaded(JSONArray response) {
                             //Log.d("Meeeeeee", "startReport() > Thread() > onUploaded");
@@ -109,6 +94,7 @@ public class Reporter {
                                     e.printStackTrace();
                                 }
                             }
+                            try { clearOldLogFiles(); } catch (Throwable t) {}
                             reporting = false;
                             Log.d("Meeeeeee", "Reporter > start() > startReport() > sent");
                             //doing = false;
@@ -172,192 +158,49 @@ public class Reporter {
         return true;
     }
 
-    public static JSONObject getCrashExceptionsPack() {
+    public static boolean logDirIsEmpty() {
+        File logDir = new File(CraptionReporter.getInstance().getLogReportPath());
+        if (logDir.listFiles() != null) {
+            File[] logFiles = logDir.listFiles();
+            int count = logFiles.length;
+            if (count == 0)
+                return true;
+            else if (count == 1)
+                return FileUtils.readFromFile(logFiles[0]).length() <= 0;
+            else
+                return false;
+        }
+        return true;
+    }
 
-        JSONArray crashes = getCrashes();
-
-        JSONArray exceptions = getExceptions();
-
+    public static JSONObject getCrashExceptionLogsPack() {
         JSONObject result = new JSONObject();
         try {
-            result.put("crashes", crashes);
-            result.put("exceptions", exceptions);
-
-            try {
-                result.put("user_identification", CraptionReporter.getInstance().getUserIdentification());
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-
-            try {
-                result.put("extra_info", CraptionReporter.getInstance().getExtraInfo());
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-
-            try {
-                result.put("app_version", CraptionReporter.getInstance().getAppVersion());
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-
-            result.put("os_version", Build.VERSION.SDK_INT+" ("+Build.VERSION.RELEASE+")");
-
-            try {
-                String psVersion;
-                psVersion = CraptionReporter.getInstance().getContext().getPackageManager().getPackageInfo("com.google.android.gms", 0).versionName;
-                if (psVersion.contains(" ")) psVersion = psVersion.split(" ")[0];
-                result.put("ps_version", psVersion);
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-
-            try {
-
-                Context context = CraptionReporter.getInstance().getContext();
-
-                String device_imei = "";
-                try {
-                    if (PermissionRequest.haveTelephone(context)) {
-                        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-                        @SuppressLint({"MissingPermission", "HardwareIds"})
-                        String imei = telephonyManager != null ? telephonyManager.getDeviceId() : "";
-                        if (imei != null) {
-                            device_imei = imei;
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.put("device_imei", device_imei);
-
-
-                String device_model = Build.BRAND;
-                try {
-                    device_model += " : " + DeviceName.getDeviceName();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.put("device_model", device_model);
-
-
-                String device_screenclass = "Unknown";
-                try {
-                    if ((context.getResources().getConfiguration().screenLayout &
-                            Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
-                        device_screenclass = "Large";
-                    } else if ((context.getResources().getConfiguration().screenLayout &
-                            Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
-                        device_screenclass = "Normal";
-                    } else if ((context.getResources().getConfiguration().screenLayout &
-                            Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_SMALL) {
-                        device_screenclass = "Small";
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.put("device_screenclass", device_screenclass);
-
-
-                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-                float density = metrics.density;
-                String device_dpiclass = "Unknown";
-                try {
-                    if (density <= 0.75f) {
-                        device_dpiclass = "ldpi";
-                    } else if (density <= 1.0f) {
-                        device_dpiclass = "mdpi";
-                    } else if (density <= 1.5f) {
-                        device_dpiclass = "hdpi";
-                    } else if (density <= 2.0f) {
-                        device_dpiclass = "xhdpi";
-                    } else if (density <= 3.0f) {
-                        device_dpiclass = "xxhdpi";
-                    } else if (density <= 4.0f) {
-                        device_dpiclass = "xxxhdpi";
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.put("device_dpiclass", device_dpiclass);
-
-
-                String device_screensize = "";
-                String device_screen_dimensions_dpis = "";
-                String device_screen_dimensions_pixels = "";
-                try {
-                    int orientation = context.getResources().getConfiguration().orientation;
-                    WindowManager wm = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
-                    Display display = wm.getDefaultDisplay();
-                    Point screenSize = new Point();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        display.getRealSize(screenSize);
-                    } else {
-                        display.getSize(screenSize);
-                    }
-                    int screenSize_x = screenSize.x;
-                    int screenSize_y = screenSize.y;
-                    int width = (orientation == Configuration.ORIENTATION_PORTRAIT ? screenSize_x : screenSize_y);
-                    int height = (orientation == Configuration.ORIENTATION_PORTRAIT ? screenSize_y : screenSize_x);
-
-                    double wi = (double) width / (double) metrics.xdpi;
-                    double hi = (double) height / (double) metrics.ydpi;
-                    double x = Math.pow(wi, 2);
-                    double y = Math.pow(hi, 2);
-                    double screenInches = Math.sqrt(x + y);
-                    device_screensize = String.format(Locale.US, "%.2f", screenInches);
-
-
-                    device_screen_dimensions_dpis = (int) (width / density) + " x " + (int) (height / density);
-
-
-                    device_screen_dimensions_pixels = width + " x " + height;
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                result.put("device_screensize", device_screensize);
-                result.put("device_screen_dimensions_dpis", device_screen_dimensions_dpis);
-                result.put("device_screen_dimensions_pixels", device_screen_dimensions_pixels);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
-                result.put("cpu", TextUtils.join(", ", Build.SUPPORTED_ABIS));
-            } else {
-                result.put("cpu", Build.CPU_ABI+", "+Build.CPU_ABI2);
-            }
-
+            result.put("uid", CraptionReporter.getInstance().getUid());
+            result.put("debug", isDebug(CraptionReporter.getInstance().getContext()));
+            result.put("crashes", getCrashes());
+            result.put("exceptions", getExceptions());
+            result.put("logs", getLogs());
+            result.put("appVersionCode", CraptionReporter.getInstance().getAppVersionCode());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 
     public static JSONArray getCrashes() {
 
         File crashDir = new File(CraptionReporter.getInstance().getCrashReportPath());
-        File logDir = new File(CraptionReporter.getInstance().getLogReportPath());
-
         JSONArray crashes = new JSONArray();
         String stackTrace;
-        String logOfCrash = "";
         JSONObject crash;
         if (crashDir.listFiles() != null) {
             for (File crashFile : crashDir.listFiles()) {
                 stackTrace = FileUtils.readFromFile(crashFile);
-                File logFile = new File(logDir.getAbsolutePath()+File.separator+"log_"+crashFile.getName());
-                if (logFile.exists())
-                    logOfCrash = FileUtils.readFromFile(logFile);
                 crash = new JSONObject();
                 try {
                     crash.put("file_name", crashFile.getName());
                     crash.put("stack_trace", stackTrace);
-                    crash.put("logs", logOfCrash);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -388,11 +231,34 @@ public class Reporter {
         return exceptions;
     }
 
+    public static String getLogs() {
+        String logs = "";
+
+        File logDir = new File(CraptionReporter.getInstance().getLogReportPath());
+        File[] oldLogFiles = logDir.listFiles();
+
+        File logFile = new File(CraptionReporter.getInstance().getLogReportPath()+File.separator+"logReports.txt");
+        if (logFile.exists()) {
+            logs += FileUtils.readFromFile(logFile);
+            if (logs.length() > 0)
+                logFile.renameTo(new File(CraptionReporter.getInstance().getLogReportPath()+File.separator+"logReports-"+System.currentTimeMillis()+".txt"));
+        }
+
+        if (oldLogFiles != null && oldLogFiles.length > 0)
+            for (File oldLogFile : oldLogFiles) {
+                if (oldLogFile.getName() != "logReports.txt" && oldLogFile.isFile())
+                    logs += FileUtils.readFromFile(oldLogFile);
+            }
+
+        return logs;
+    }
+
 
     public static void clearAll() {
         try {
             FileUtils.deleteFiles(CraptionReporter.getInstance().getCrashReportPath());
             FileUtils.deleteFiles(CraptionReporter.getInstance().getExceptionReportPath());
+            FileUtils.deleteFiles(CraptionReporter.getInstance().getLogReportPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -404,6 +270,20 @@ public class Reporter {
             FileUtils.delete(CraptionReporter.getInstance().getExceptionReportPath()+File.separator+crashFileName);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void clearOldLogFiles() {
+        try {
+            File logDir = new File(CraptionReporter.getInstance().getLogReportPath());
+            File[] oldLogFiles = logDir.listFiles();
+            if (oldLogFiles != null && oldLogFiles.length > 0)
+                for (File oldLogFile : oldLogFiles) {
+                    if (oldLogFile.getName() != "logReports.txt" && oldLogFile.isFile())
+                        oldLogFile.delete();
+                }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 

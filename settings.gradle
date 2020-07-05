@@ -1,1 +1,2 @@
-include ':app', ':craptionreporter'
+include ':app', ':craptionreporter', ':needtool'
+project(':needtool').projectDir=new File('D:\\Android\\Projects\\Am3n\\NeedToolSample\\needtool')

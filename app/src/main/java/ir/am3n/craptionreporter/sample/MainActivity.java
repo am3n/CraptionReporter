@@ -1,22 +1,11 @@
 package ir.am3n.craptionreporter.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import ir.am3n.craptionreporter.CraptionReporter;
-import ir.am3n.craptionreporter.server.Reporter;
-import ir.am3n.craptionreporter.server.UploadCrashesAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,13 +26,19 @@ public class MainActivity extends AppCompatActivity {
         //new Handler().postDelayed(CraptionReporter::crash, 3000);
 
         TextView txt = findViewById(R.id.txt);
+        TextView btn = findViewById(R.id.btn);
+
         txt.setOnClickListener(v ->
-                CraptionReporter.crash()
+            CraptionReporter.exception(new Exception(""), "MainAct > txt.click()")
         );
         txt.setOnLongClickListener(v -> {
-            CraptionReporter.exception(new Exception(""), "MainAct > txt.longClick()");
+            CraptionReporter.crash();
             return true;
         });
+
+        btn.setOnClickListener(v ->
+            CraptionReporter.log("MainAct - onCreate() > log a string ")
+        );
 
     }
 

@@ -1,9 +1,8 @@
 package ir.am3n.craptionreporter;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Network;
@@ -17,9 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
+import ir.am3n.craptionreporter.server.HelloThread;
 import ir.am3n.craptionreporter.server.Reporter;
 import ir.am3n.craptionreporter.server.ServerHandlerService;
 import ir.am3n.craptionreporter.ui.CraptionReporterActivity;
@@ -27,7 +26,11 @@ import ir.am3n.craptionreporter.utils.Constants;
 import ir.am3n.craptionreporter.utils.CraptionReporterExceptionHandler;
 import ir.am3n.craptionreporter.utils.CraptionUtil;
 import ir.am3n.craptionreporter.utils.CraptionReporterNotInitializedException;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
+import static ir.am3n.needtool.ExecHelperKt.onIO;
+import static ir.am3n.needtool.SharedPrefHelperKt.sh;
 import static java.lang.Thread.sleep;
 
 public class CraptionReporter {
@@ -47,6 +50,7 @@ public class CraptionReporter {
 
     private static Thread reporterThread;
     private static boolean reporterThreadStoped = true;
+    private static int reporterCounter = 1;
 
     private static String serverHost = "";
     private static Map<String, String> serverHeaders;
@@ -56,14 +60,15 @@ public class CraptionReporter {
     private static RetraceOn retraceOn = RetraceOn.NONE;
     private static boolean retraceVerbose = true;
 
-    private static String userIdentification;
-    private static String extraInfo;
+    private static String uid = "";
+    private static String userIdentification = "";
+    private static String extraInfo = "";
 
     private static NetworkStateReceiver.State networkState;
 
     public static CraptionReporter with(Context context) {
         applicationContext = context;
-        if (instance==null)
+        if (instance == null)
             instance = new CraptionReporter();
         return instance;
     }
@@ -104,9 +109,7 @@ public class CraptionReporter {
                 appVersionCode = pInfo.getLongVersionCode();
             else
                 appVersionCode = pInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
+        } catch (PackageManager.NameNotFoundException e) {}
 
         setUpExceptionHandler();
 
@@ -125,29 +128,27 @@ public class CraptionReporter {
 
             setUpNetworkReceiver();
 
-            setUpReporterThread();
-
         }
         return instance;
     }
 
-    private static boolean isServiceRunning(Context context) {
-        try {
-            String className = ServerHandlerService.class.getName();
-            if (context!=null && context.getSystemService(Context.ACTIVITY_SERVICE) != null) {
-                List<ActivityManager.RunningServiceInfo> list =
-                        ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE);
-                if (list != null) {
-                    for (ActivityManager.RunningServiceInfo serviceInfo : list) {
-                        if (className.equals(serviceInfo.service.getClassName()))
-                            return true;
-                    }
+    private static long lastHello = 0L;
+    private static void hello() {
+        if (isServerReportEnabled && (lastHello == 0L || System.currentTimeMillis() - lastHello > 5000)) {
+            lastHello = System.currentTimeMillis();
+            new HelloThread(new HelloThread.Listener() {
+                @Override
+                public void onSuccess(String uid) {
+                    lastHello = System.currentTimeMillis() + 5000;
+                    CraptionReporter.getInstance().setUid(uid);
+                    setUpReporterThread();
                 }
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
+                @Override
+                public void onError() {
+                    //onIO(CraptionReporter::hello, 3000);
+                }
+            }).start();
         }
-        return false;
     }
 
     private static void setUpExceptionHandler() {
@@ -163,17 +164,20 @@ public class CraptionReporter {
                 public void onChanged(@NotNull NetworkStateReceiver.State state, @Nullable Network network) {
                     networkState = state;
                     //Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
-                    if (network!=null)
+                    if (network!=null) {
                         //Log.d("Me-CraptionReporter", "NetworkReceiver() > network: "+network.toString());
-                    if (state == NetworkStateReceiver.State.AVAILABLE) {
-                        new Reporter().report();
+                        if (state == NetworkStateReceiver.State.AVAILABLE) {
+                            reporterCounter = 1;
+                            onIO(CraptionReporter::hello, 3000);
+                        }
                     }
                 }
                 @Override
                 public void onChangedOnLowApi(@NotNull NetworkStateReceiver.State state) {
                     //Log.d("Me-CraptionReporter", "NetworkReceiver() > state: "+state.name());
                     if (state == NetworkStateReceiver.State.AVAILABLE) {
-                        new Reporter().report();
+                        reporterCounter = 1;
+                        onIO(CraptionReporter::hello, 3000);
                     }
                 }
                 @Override
@@ -189,57 +193,26 @@ public class CraptionReporter {
     synchronized private static void setUpReporterThread() {
         try {
             if (isServerReportEnabled) {
-                if (reporterThread == null) {
+                if (reporterThread == null || reporterThreadStoped) {
+                    try {
+                        if (reporterThread!=null)
+                            reporterThread.stop();
+                    } catch (Throwable ignore) {}
                     reporterThread = new Thread(() -> {
-                        while (true) {
-
-                            if (networkState == NetworkStateReceiver.State.AVAILABLE) {
-
-                                reporterThreadStoped = false;
-                                long ts = System.currentTimeMillis();
-                                new Reporter().listener(() -> {
-
-                                    if (networkState != NetworkStateReceiver.State.AVAILABLE)
-                                        return;
-
-                                    if (System.currentTimeMillis() - ts < 3 * 1000)
-                                        try {
-                                            sleep(3 * 1000);
-                                        } catch (Throwable ignore) {
-                                        }
-
-                                    long ts2 = System.currentTimeMillis();
-                                    new Reporter().listener(() -> {
-
-                                        if (networkState != NetworkStateReceiver.State.AVAILABLE)
-                                            return;
-
-                                        if (System.currentTimeMillis() - ts2 < 3 * 1000)
-                                            try {
-                                                sleep(3 * 1000);
-                                            } catch (Throwable ignore) {
-                                            }
-
-                                        new Reporter().listener(() ->
-                                                reporterThreadStoped = true
-                                        ).report();
-
-                                    }).report();
-
-                                }).report();
-
-                            }
-
-                            try { sleep(60*1000); } catch (Throwable ignore) {}
+                        while (networkState == NetworkStateReceiver.State.AVAILABLE) {
+                            reporterThreadStoped = false;
+                            new Reporter().listener(null).report();
+                            try {
+                                sleep(((reporterCounter/5)+1) * 10 * 1000);
+                                if (reporterCounter < 30)
+                                    reporterCounter++;
+                            } catch (Throwable ignore) {}
                         }
+                        reporterThreadStoped = true;
                     });
                     reporterThread.start();
                 } else {
-                    if (reporterThreadStoped)
-                        reporterThread.interrupt();
-                    else {
-                        // just wait
-                    }
+                    reporterThread.interrupt();
                 }
             } else {
                 if (reporterThread!=null)
@@ -313,41 +286,62 @@ public class CraptionReporter {
     public Map<String, String> getServerHeaders() {
         return serverHeaders;
     }
+    public long getAppVersionCode() {
+        return appVersionCode;
+    }
+    public String getAppVersionName() {
+        return appVersionName;
+    }
     public String getAppVersion() {
         return appVersionCode+" ("+appVersionName+")";
     }
     public String getMappingFileUrl() {
         return Constants.SERVER_MAPPINGS_FILES_DIR+"mapping-"+appVersionCode+".txt";
     }
+    public String getHelloUrl() {
+        return Constants.SERVER_HELLO;
+    }
     public String getRepoterUrl() {
         return Constants.SERVER_REPORTER;
     }
 
 
+    public void setUid(String unique) {
+        uid = unique;
+        sh(applicationContext, "craptionreporter")
+            .edit()
+            .putString("uid", uid)
+            .apply();
+    }
+    public String getUid() {
+        if (TextUtils.isEmpty(uid))
+            uid = sh(applicationContext, "craptionreporter").getString("uid", "");
+        return uid;
+    }
+
     public void setUserIdentification(String identification) {
         userIdentification = identification;
-        SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
-        sh.edit().putString("user_identification", identification).apply();
+        sh(applicationContext, "craptionreporter")
+            .edit()
+            .putString("user_identification", identification)
+            .apply();
     }
     public String getUserIdentification() {
-        if (TextUtils.isEmpty(userIdentification)) {
-            SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
-            return sh.getString("user_identification", "");
-        }
+        if (TextUtils.isEmpty(userIdentification))
+            userIdentification = sh(applicationContext, "craptionreporter").getString("user_identification", "");
         return userIdentification;
     }
 
-
     public void setExtraInfo(String extra) {
         extraInfo = extra;
-        SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
-        sh.edit().putString("extra_info", extraInfo).apply();
+        sh(applicationContext, "craptionreporter")
+            .edit()
+            .putString("extra_info", extra)
+            .apply();
     }
     public String getExtraInfo() {
-        if (TextUtils.isEmpty(extraInfo)) {
-            SharedPreferences sh = applicationContext.getSharedPreferences("craptionreporter", Context.MODE_PRIVATE);
-            return sh.getString("extra_info", "");
-        }
+        if (TextUtils.isEmpty(extraInfo))
+            extraInfo = sh(applicationContext, "craptionreporter").getString("extra_info", "");
         return extraInfo;
     }
 
@@ -355,7 +349,6 @@ public class CraptionReporter {
     public Intent getLaunchIntent() {
         return new Intent(applicationContext, CraptionReporterActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
-
 
     public static void crash() {
         throw new RuntimeException("Craption Reporter Crash");
@@ -365,10 +358,11 @@ public class CraptionReporter {
     }
     public static void exception(Throwable exception, String eventLocation) {
         CraptionUtil.exception(exception, eventLocation);
-        setUpReporterThread();
+        hello();
     }
     public static void log(String log) {
         CraptionUtil.log(log);
+        hello();
     }
 
     public static void clearLogs() {

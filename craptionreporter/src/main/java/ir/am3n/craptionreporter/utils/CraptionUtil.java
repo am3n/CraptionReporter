@@ -32,6 +32,7 @@ import ir.am3n.craptionreporter.server.ServerHandlerService;
 
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static ir.am3n.needtool.ContextHelperKt.isDebug;
 
 public class CraptionUtil {
 
@@ -67,7 +68,8 @@ public class CraptionUtil {
     public static void log(final String log) {
         new Thread(() -> {
             String logReportPath = CraptionReporter.getInstance().getLogReportPath();
-            writeLogToFile(logReportPath, getCrashLogTime()+"  -  "+log+"\n");
+            boolean debug = isDebug(CraptionReporter.getInstance().getContext());
+            writeLogToFile(logReportPath, "D:"+(debug ? 1 : 0)+" - "+getCrashLogTime()+"  -  "+log+"\n");
         }).start();
     }
 
@@ -92,18 +94,6 @@ public class CraptionUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-        String logReportPath = CraptionReporter.getInstance().getLogReportPath();
-        if (TextUtils.isEmpty(logReportPath)) {
-            logReportPath = getDefaultLogPath();
-        }
-        File logDir = new File(logReportPath);
-        if (!logDir.exists() || !logDir.isDirectory()) {
-            logReportPath = getDefaultLogPath();
-        }
-        File logFile = new File(logReportPath + File.separator + "logReports.txt");
-        logFile.renameTo(new File(logReportPath + File.separator + "log_" + filename));
 
     }
     private static void writeLogToFile(String logReportPath, String log) {
