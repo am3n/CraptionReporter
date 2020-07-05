@@ -16,7 +16,7 @@ allprojects {
 }
 
 dependencies {
-  implementation 'com.github.am3n:CraptionReporter:1.7'
+  implementation 'com.github.am3n:CraptionReporter:1.8.1'
 }
 ```
 
