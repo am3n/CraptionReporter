@@ -130,7 +130,7 @@ public class Reporter {
                     CraptionReporter.clearLogs();
                 }
 
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 reporting = false;
                 e.printStackTrace();
                 if (listener!=null)
@@ -182,9 +182,7 @@ public class Reporter {
             result.put("exceptions", getExceptions());
             result.put("logs", getLogs());
             result.put("appVersionCode", CraptionReporter.getInstance().getAppVersionCode());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        } catch (Throwable e) {}
         return result;
     }
 
