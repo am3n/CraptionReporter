@@ -1,2 +1,2 @@
-include ':app', ':craptionreporter', ':needtool'
-project(':needtool').projectDir=new File('D:\\Android\\Projects\\Am3n\\NeedToolSample\\needtool')
+include ':app', ':craptionreporter'/*, ':needtool'
+project(':needtool').projectDir=new File('D:\\Android\\Projects\\Am3n\\NeedToolSample\\needtool')*/
